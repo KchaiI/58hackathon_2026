@@ -2,12 +2,26 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+
+type Listing = {
+  id: string
+  title: string
+  crop: string
+  description: string
+  price: number
+  total_slots: number
+  available_slots: number
+  image_url: string | null
+  harvest_date: string | null
+  producers: { name: string; location: string; description: string } | null
+}
 
 export default function ListingPage() {
   const { id } = useParams()
   const router = useRouter()
-  const [listing, setListing] = useState<any>(null)
+  const [listing, setListing] = useState<Listing | null>(null)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
@@ -52,7 +66,9 @@ export default function ListingPage() {
       </button>
 
       {listing.image_url && (
-        <img src={listing.image_url} alt={listing.title} className="w-full h-56 object-cover rounded-xl mb-6" />
+        <div className="relative w-full h-56 mb-6">
+          <Image src={listing.image_url} alt={listing.title} fill className="object-cover rounded-xl" unoptimized />
+        </div>
       )}
 
       <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">{listing.crop}</span>

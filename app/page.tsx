@@ -1,5 +1,17 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+
+type Listing = {
+  id: string
+  title: string
+  crop: string
+  price: number
+  total_slots: number
+  available_slots: number
+  image_url: string | null
+  producers: { name: string; location: string } | null
+}
 
 export const revalidate = 0
 
@@ -27,15 +39,13 @@ export default async function Home() {
 
       {listings && listings.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {listings.map((listing: any) => (
+          {(listings as Listing[]).map((listing) => (
             <Link key={listing.id} href={`/listings/${listing.id}`}>
               <div className="border rounded-xl p-5 hover:shadow-md transition cursor-pointer">
                 {listing.image_url && (
-                  <img
-                    src={listing.image_url}
-                    alt={listing.title}
-                    className="w-full h-40 object-cover rounded-lg mb-4"
-                  />
+                  <div className="relative w-full h-40 mb-4">
+                    <Image src={listing.image_url} alt={listing.title} fill className="object-cover rounded-lg" unoptimized />
+                  </div>
                 )}
                 <div className="flex justify-between items-start">
                   <div>
