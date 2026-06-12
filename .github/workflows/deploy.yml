@@ -30,9 +30,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build
-        run: npm run build
-
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
