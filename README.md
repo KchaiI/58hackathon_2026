@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# オーナー枠マーケット
 
-## Getting Started
+農家・林業家などの生産者がオーナー制度を開設できるプラットフォーム。外国人が日本固有の作物・木のオーナーになり、育つ過程を追いながら収穫後の加工品を受け取れる。
 
-First, run the development server:
+## 技術スタック
+
+- **フロントエンド**: Next.js 15 (App Router) + Tailwind CSS
+- **データベース**: Supabase (PostgreSQL)
+- **デプロイ**: Vercel
+- **CI/CD**: GitHub Actions
+
+---
+
+## ローカル開発のセットアップ
+
+### 1. リポジトリをクローン
+
+```bash
+git clone https://github.com/KchaiI/58hackathon_2026.git
+cd 58hackathon_2026
+```
+
+### 2. 依存パッケージをインストール
+
+```bash
+npm install
+```
+
+### 3. 環境変数を設定
+
+`.env.local` ファイルをプロジェクトルートに作成し、以下を記載：
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+Supabase の URL と anon key は [Supabase ダッシュボード](https://supabase.com) の **Settings → API** から取得できます。
+
+### 4. データベースのテーブルを作成
+
+Supabase ダッシュボードの **SQL Editor** で以下を実行：
+
+```sql
+create table producers (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  location text,
+  description text,
+  image_url text,
+  created_at timestamptz default now()
+);
+
+create table listings (
+  id uuid primary key default gen_random_uuid(),
+  producer_id uuid references producers(id) on delete cascade,
+  title text not null,
+  description text,
+  crop text not null,
+  price integer not null,
+  total_slots integer not null,
+  available_slots integer not null,
+  image_url text,
+  harvest_date date,
+  created_at timestamptz default now()
+);
+
+create table ownerships (
+  id uuid primary key default gen_random_uuid(),
+  listing_id uuid references listings(id) on delete cascade,
+  owner_name text not null,
+  owner_email text not null,
+  slots integer not null default 1,
+  created_at timestamptz default now()
+);
+```
+
+### 5. 開発サーバーを起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) でアクセスできます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## CI/CD（GitHub Actions + Vercel）
 
-## Learn More
+`main` ブランチに push すると自動でデプロイが走ります。
 
-To learn more about Next.js, take a look at the following resources:
+### GitHub Secrets に以下を登録
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+リポジトリの **Settings → Secrets and variables → Actions** で追加：
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Secret名 | 説明 |
+|---|---|
+| `VERCEL_TOKEN` | Vercel のアクセストークン |
+| `VERCEL_ORG_ID` | `.vercel/project.json` の `orgId` |
+| `VERCEL_PROJECT_ID` | `.vercel/project.json` の `projectId` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase のプロジェクト URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase の anon key |
 
-## Deploy on Vercel
+### Vercel との紐付け
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx vercel login
+npx vercel link
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## ページ構成
+
+| URL | 内容 |
+|---|---|
+| `/` | オーナー枠一覧 |
+| `/listings/[id]` | 枠の詳細・オーナー登録 |
+| `/producer/new` | 生産者による枠の出品 |
