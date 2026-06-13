@@ -115,6 +115,8 @@ export default function MyPage() {
     const res = await fetch(`/api/ownerships?email=${encodeURIComponent(email)}`);
     const data = await res.json();
     setOwnerships(Array.isArray(data) ? data : []);
+    sessionStorage.setItem('user_email', email);
+    sessionStorage.setItem('user_name', Array.isArray(data) && data[0]?.owner_name ? data[0].owner_name : email);
     setSubmitted(true);
     setLoading(false);
   }
