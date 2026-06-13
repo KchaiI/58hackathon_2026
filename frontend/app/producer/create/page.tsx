@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 export default function CreateListingPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({
     producerName: '',
     location: '',
@@ -31,13 +30,8 @@ export default function CreateListingPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     })
-    if (res.ok) {
-      router.push('/')
-    } else {
-      const data = await res.json()
-      setError(data.detail ?? data.error ?? '登録に失敗しました')
-      setLoading(false)
-    }
+    if (res.ok) router.push('/')
+    else setLoading(false)
   }
 
   const inputClass = 'w-full bg-[#f0f4f8] rounded-xl px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none border border-black transition'
@@ -120,11 +114,6 @@ export default function CreateListingPage() {
             </div>
           </section>
 
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-              {error}
-            </div>
-          )}
           <button
             type="submit" disabled={loading}
             className="w-full bg-[#1a3a5c] text-white py-3.5 rounded-xl font-medium hover:bg-[#0f2540] disabled:opacity-50 transition"
