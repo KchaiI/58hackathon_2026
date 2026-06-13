@@ -38,24 +38,11 @@ export default function ListingPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
 
-  useEffect(() => {
+useEffect(() => {
     fetch(`/api/listings/${id}`)
       .then(res => res.json())
       .then(data => setListing(data))
   }, [id])
-
-  async function handlePurchase(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (!listing || listing.available_slots <= 0) return
-    setLoading(true)
-    const res = await fetch('/api/ownerships', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ listing_id: listing.id, owner_name: name, owner_email: email }),
-    })
-    if (res.ok) setDone(true)
-    setLoading(false)
-  }
 
   if (!listing) {
     return <div className="max-w-5xl mx-auto px-8 py-8 text-gray-400">読み込み中...</div>
@@ -116,7 +103,13 @@ export default function ListingPage() {
               <p className="text-sm text-gray-500 mt-1">{email} に確認メールを送信しました</p>
             </div>
           ) : listing.available_slots > 0 ? (
-            <form onSubmit={handlePurchase} className="mt-6 space-y-4">
+            <form
+              className="mt-6 space-y-4"
+              onSubmit={e => {
+                e.preventDefault()
+                router.push(`/payment_demo?price=${listing.price}&title=${encodeURIComponent(listing.title)}&listing_id=${listing.id}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`)
+              }}
+            >
               <div>
                 <label className="block text-sm text-gray-700 mb-1">お名前</label>
                 <input
