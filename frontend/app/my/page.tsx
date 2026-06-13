@@ -108,7 +108,7 @@ export default function MyPage() {
     return (
       <main className="w-full px-12 py-8">
         <Link href="/" className="text-gray-400 hover:text-gray-600 text-sm mb-8 block">
-          ← 一覧に戻る
+          {'←'} 一覧に戻る
         </Link>
         <div className="max-w-md mx-auto mt-20">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">マイページ</h1>
@@ -136,7 +136,7 @@ export default function MyPage() {
     return (
       <main className="w-full px-12 py-8">
         <Link href="/" className="text-gray-400 hover:text-gray-600 text-sm mb-8 block">
-          ← 一覧に戻る
+          {'←'} 一覧に戻る
         </Link>
         <div className="text-center py-20 text-gray-400">
           <p className="text-5xl mb-4">🌱</p>
@@ -152,7 +152,7 @@ export default function MyPage() {
   return (
     <main className="w-full px-12 py-8">
       <Link href="/" className="text-gray-400 hover:text-gray-600 text-sm mb-8 block">
-        ← 一覧に戻る
+        {'←'} 一覧に戻る
       </Link>
 
       {/* Profile */}

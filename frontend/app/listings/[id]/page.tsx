@@ -66,7 +66,7 @@ export default function ListingPage() {
   return (
     <main className="w-full px-12 py-8">
       <button onClick={() => router.push('/')} className="text-gray-400 hover:text-gray-600 mb-6 flex items-center gap-1 text-sm">
-        ← 一覧に戻る
+        {'←'} 一覧に戻る
       </button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

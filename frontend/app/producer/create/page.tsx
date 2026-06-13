@@ -42,7 +42,7 @@ export default function CreateListingPage() {
         onClick={() => router.push('/')}
         className="flex items-center gap-1 text-sm text-white bg-[#2a5c25] px-4 py-2 rounded-lg hover:bg-[#1e4a1a] transition mb-8"
       >
-        ← 一覧に戻る
+        {'←'} 一覧に戻る
       </button>
 
       <div className="max-w-2xl mx-auto">
