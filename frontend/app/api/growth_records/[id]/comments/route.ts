@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(
   _req: NextRequest,
@@ -7,7 +7,7 @@ export async function GET(
 ) {
   const { id } = await params
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseAdmin()
     .from('growth_record_comments')
     .select('*')
     .eq('growth_record_id', id)
@@ -29,7 +29,7 @@ export async function POST(
     return Response.json({ error: 'user_identifier, user_name, body は必須です' }, { status: 400 })
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseAdmin()
     .from('growth_record_comments')
     .insert({ growth_record_id: id, user_identifier, user_name, body })
     .select()

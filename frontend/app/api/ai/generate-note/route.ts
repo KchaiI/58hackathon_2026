@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server'
 import { GoogleGenAI } from '@google/genai'
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
-
 export async function POST(request: NextRequest) {
   const { image_base64, mime_type, crop } = await request.json()
 
@@ -15,6 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
     const cropLabel = crop ? `「${crop}」` : '作物'
     const prompt = `あなたは農家です。この画像は${cropLabel}の成長記録です。
 この作物の現在の状態について、支援者に向けて日本語で2〜3文の短いコメントを書いてください。
