@@ -112,7 +112,7 @@ export default function ListingPage() {
           {done ? (
             <div className="mt-6 p-6 bg-green-50 border border-green-200 rounded-xl text-center">
               <p className="text-2xl mb-2">🎉</p>
-              <p className="font-semibold text-green-700">オーナー登録が完了しました！</p>
+              <p className="font-semibold text-green-700">支援者登録が完了しました！</p>
               <p className="text-sm text-gray-500 mt-1">{email} に確認メールを送信しました</p>
             </div>
           ) : listing.available_slots > 0 ? (
@@ -137,7 +137,7 @@ export default function ListingPage() {
                 type="submit" disabled={loading}
                 className="w-full bg-[#2a5c25] text-white py-3 rounded-xl font-medium hover:bg-[#1e4a1a] disabled:opacity-50 transition"
               >
-                {loading ? '処理中...' : `¥${listing.price.toLocaleString()} でオーナー登録する`}
+                {loading ? '処理中...' : `¥${listing.price.toLocaleString()} で支援者登録する`}
               </button>
             </form>
           ) : (

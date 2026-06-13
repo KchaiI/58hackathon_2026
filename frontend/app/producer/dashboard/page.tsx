@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 type Producer = {
   user_id: string
@@ -38,7 +37,6 @@ function getStatus(listing: Listing): { label: string; cls: string } {
 }
 
 export default function ProducerDashboard() {
-  const router = useRouter()
   const [producers, setProducers] = useState<Producer[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
   const [listings, setListings] = useState<Listing[]>([])
@@ -64,18 +62,11 @@ export default function ProducerDashboard() {
 
   return (
     <main className="w-full px-12 py-8">
-      <button onClick={() => router.push('/')} className="flex items-center gap-1 text-sm text-white bg-[#2a5c25] px-4 py-2 rounded-lg hover:bg-[#1e4a1a] transition mb-8">
-        {'←'} 一覧に戻る
-      </button>
-
-      <div className="flex justify-between items-start mb-6">
+<div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1a1a]">生産者ダッシュボード</h1>
-          <p className="text-[#9a9080] mt-1 text-sm">自分の枠一覧とオーナー数を確認できます</p>
+          <p className="text-[#9a9080] mt-1 text-sm">自分の枠一覧と支援者数を確認できます</p>
         </div>
-        <Link href="/producer/create" className="bg-[#2a5c25] text-white px-4 py-2 rounded-xl hover:bg-[#1e4a1a] text-sm font-medium transition">
-          新しい枠を出品する
-        </Link>
       </div>
 
       <div className="mb-6">
@@ -104,7 +95,7 @@ export default function ProducerDashboard() {
               <p className="text-3xl font-bold text-[#1a1a1a]">{listings.length}</p>
             </div>
             <div className="bg-[#d4dfc8] rounded-2xl p-4">
-              <p className="text-xs text-[#9a9080] mb-1">オーナー総数</p>
+              <p className="text-xs text-[#9a9080] mb-1">支援者総数</p>
               <p className="text-3xl font-bold text-[#1a1a1a]">{totalOwners}</p>
             </div>
             <div className="bg-[#d4dfc8] rounded-2xl p-4">
@@ -161,7 +152,7 @@ export default function ProducerDashboard() {
                     </div>
                     {owners.length > 0 && (
                       <div className="mt-4 pt-4 border-t border-[#f0ede6]">
-                        <p className="text-xs font-medium text-[#9a9080] mb-2">オーナー ({owners.length}人)</p>
+                        <p className="text-xs font-medium text-[#9a9080] mb-2">支援者 ({owners.length}人)</p>
                         <ul className="space-y-1">
                           {owners.map((o, i) => (
                             <li key={i} className="flex items-center gap-2 text-sm">
