@@ -62,7 +62,7 @@ export default function ListingPage() {
     return <div className="max-w-5xl mx-auto px-8 py-8 text-gray-400">読み込み中...</div>
   }
 
-  const mainImage = listing.image_url ?? `https://picsum.photos/seed/${listing.id}/800/600`
+  const mainImage = listing.image_url || `https://picsum.photos/seed/${listing.id}/800/600`
 
   return (
     <main className="w-full px-12 py-8">

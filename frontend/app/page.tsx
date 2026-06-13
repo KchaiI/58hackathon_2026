@@ -2,7 +2,6 @@ import ListingGrid from "./components/ListingGrid";
 
 export type Listing = {
   id: string;
-  short_id: number;
   title: string;
   crop: string;
   price: number;
