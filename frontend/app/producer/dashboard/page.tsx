@@ -78,7 +78,7 @@ export default function ProducerDashboard() {
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
       <button onClick={() => router.push('/')} className="text-gray-400 hover:text-gray-600 mb-6 block">
-        ← 一覧に戻る
+        {'←'} 一覧に戻る
       </button>
 
       <div className="flex justify-between items-center mb-8">
