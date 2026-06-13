@@ -39,7 +39,7 @@ export default function ListingPage() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    fetch(`/api/listings/${id}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings/${id}`)
       .then(res => res.json())
       .then(data => setListing(data))
   }, [id])
@@ -48,7 +48,8 @@ export default function ListingPage() {
     e.preventDefault()
     if (!listing || listing.available_slots <= 0) return
     setLoading(true)
-    const res = await fetch('/api/ownerships', {
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ownerships/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ listing_id: listing.id, owner_name: name, owner_email: email }),
@@ -61,7 +62,7 @@ export default function ListingPage() {
     return <div className="max-w-5xl mx-auto px-8 py-8 text-gray-400">読み込み中...</div>
   }
 
-  const mainImage = listing.image_url ?? `https://picsum.photos/seed/${listing.id}/800/600`
+  const mainImage = listing.image_url || `https://picsum.photos/seed/${listing.id}/800/600`
 
   return (
     <main className="w-full px-12 py-8">

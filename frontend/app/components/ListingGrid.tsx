@@ -127,20 +127,22 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
       {/* Grid */}
       {filtered.length > 0 ? (
         <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
-          {filtered.map((listing) => {
+          {filtered.map((listing, index) => {
             const used = listing.total_slots - listing.available_slots
             const pct = Math.round((used / listing.total_slots) * 100)
             const months = monthsUntil(listing.harvest_date)
 
             return (
-              <Link key={listing.id} href={`/listings/${listing.short_id}`}>
+              <Link key={listing.id} href={`/listings/${listing.id}`}>
                 <div className="rounded-2xl overflow-hidden hover:shadow-md transition cursor-pointer bg-[#f2f7f0]">
                   {/* Image */}
                   <div className="relative w-full h-44 bg-[#e4eee0] flex items-center justify-center">
                     <Image
-                      src={listing.image_url ?? `https://picsum.photos/seed/${listing.id}/600/400`}
+                      src={listing.image_url || `https://picsum.photos/seed/${listing.id}/600/400`}
                       alt={listing.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, 340px"
+                      priority={index === 0}
                       className="object-cover"
                     />
                   </div>
