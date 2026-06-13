@@ -17,6 +17,18 @@ type Listing = {
   producers: { name: string; location: string; description: string } | null
 }
 
+function ImagePlaceholder({ className }: { className?: string }) {
+  return (
+    <div className={`bg-[#e4eee0] flex items-center justify-center ${className}`}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-10 h-10 text-[#7aaa6a]">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <path d="M21 15l-5-5L5 21" />
+      </svg>
+    </div>
+  )
+}
+
 export default function ListingPage() {
   const { id } = useParams()
   const router = useRouter()
@@ -32,91 +44,111 @@ export default function ListingPage() {
       .then(data => setListing(data))
   }, [id])
 
-  async function handlePurchase(e: React.FormEvent) {
+  async function handlePurchase(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!listing || listing.available_slots <= 0) return
     setLoading(true)
-
     const res = await fetch('/api/ownerships', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ listing_id: listing.id, owner_name: name, owner_email: email }),
     })
-
     if (res.ok) setDone(true)
     setLoading(false)
   }
 
-  if (!listing) return <div className="max-w-2xl mx-auto px-4 py-8">読み込み中...</div>
+  if (!listing) {
+    return <div className="max-w-5xl mx-auto px-8 py-8 text-gray-400">読み込み中...</div>
+  }
+
+  const mainImage = listing.image_url ?? `https://picsum.photos/seed/${listing.id}/800/600`
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-8">
-      <button onClick={() => router.push('/')} className="text-gray-400 hover:text-gray-600 mb-6 block">
+    <main className="w-full px-12 py-8">
+      <button onClick={() => router.push('/')} className="text-gray-400 hover:text-gray-600 mb-6 flex items-center gap-1 text-sm">
         ← 一覧に戻る
       </button>
 
-      {listing.image_url && (
-        <div className="relative w-full h-56 mb-6">
-          <Image src={listing.image_url} alt={listing.title} fill className="object-cover rounded-xl" unoptimized />
-        </div>
-      )}
-
-      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">{listing.crop}</span>
-      <h1 className="text-2xl font-bold mt-3">{listing.title}</h1>
-      <p className="text-gray-500 mt-1">{listing.producers?.name} · {listing.producers?.location}</p>
-
-      <p className="mt-4 text-gray-700 leading-relaxed">{listing.description}</p>
-
-      <div className="mt-6 p-4 bg-gray-50 rounded-xl flex justify-between items-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        {/* Left: Images */}
         <div>
-          <p className="text-2xl font-bold">¥{listing.price.toLocaleString()}</p>
-          <p className="text-sm text-gray-400">残り {listing.available_slots}/{listing.total_slots} 枠</p>
-        </div>
-        {listing.harvest_date && (
-          <div className="text-right text-sm text-gray-500">
-            <p>収穫予定</p>
-            <p className="font-medium">{listing.harvest_date}</p>
+          <div className="relative w-full aspect-4/3 rounded-2xl overflow-hidden">
+            <Image src={mainImage} alt={listing.title} fill className="object-cover" unoptimized />
           </div>
-        )}
-      </div>
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            {[1, 2, 3].map((i) => (
+              <ImagePlaceholder key={i} className="aspect-4/3 rounded-xl" />
+            ))}
+          </div>
+        </div>
 
-      {done ? (
-        <div className="mt-8 p-6 bg-green-50 border border-green-200 rounded-xl text-center">
-          <p className="text-2xl mb-2">🎉</p>
-          <p className="font-semibold text-green-700">オーナー登録が完了しました！</p>
-          <p className="text-sm text-gray-500 mt-1">{email} に確認メールを送信しました</p>
-        </div>
-      ) : listing.available_slots > 0 ? (
-        <form onSubmit={handlePurchase} className="mt-8 space-y-4">
-          <h2 className="font-semibold text-lg">オーナー登録</h2>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">お名前</label>
-            <input
-              type="text" required value={name}
-              onChange={e => setName(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
+        {/* Right: Details + Form */}
+        <div>
+          <span className="text-xs bg-[#daebd4] text-[#3a7a30] px-2.5 py-1 rounded-full">
+            {listing.crop}
+          </span>
+          <h1 className="text-3xl font-bold mt-3 text-gray-900">{listing.title}</h1>
+          <p className="text-gray-500 mt-1 text-sm">
+            {listing.producers?.name}・{listing.producers?.location}
+          </p>
+
+          {listing.description && (
+            <p className="mt-4 text-gray-600 text-sm leading-relaxed">{listing.description}</p>
+          )}
+
+          {/* Info card */}
+          <div className="mt-5 p-4 bg-[#f5f3f0] rounded-xl flex justify-between items-center">
+            <div>
+              <p className="text-2xl font-bold text-gray-900">¥{listing.price.toLocaleString()}</p>
+              <p className="text-sm text-gray-400 mt-0.5">残り {listing.available_slots}/{listing.total_slots} 枠</p>
+            </div>
+            {listing.harvest_date && (
+              <div className="text-right">
+                <p className="text-xs text-gray-400">収穫予定</p>
+                <p className="font-bold text-gray-900 mt-0.5">{listing.harvest_date}</p>
+              </div>
+            )}
           </div>
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">メールアドレス</label>
-            <input
-              type="email" required value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
-          </div>
-          <button
-            type="submit" disabled={loading}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
-          >
-            {loading ? '処理中...' : `¥${listing.price.toLocaleString()} でオーナー登録する`}
-          </button>
-        </form>
-      ) : (
-        <div className="mt-8 p-4 bg-gray-100 rounded-xl text-center text-gray-500">
-          この枠は満員です
+
+          {/* Form / Done */}
+          {done ? (
+            <div className="mt-6 p-6 bg-green-50 border border-green-200 rounded-xl text-center">
+              <p className="text-2xl mb-2">🎉</p>
+              <p className="font-semibold text-green-700">オーナー登録が完了しました！</p>
+              <p className="text-sm text-gray-500 mt-1">{email} に確認メールを送信しました</p>
+            </div>
+          ) : listing.available_slots > 0 ? (
+            <form onSubmit={handlePurchase} className="mt-6 space-y-4">
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">お名前</label>
+                <input
+                  type="text" required value={name}
+                  onChange={e => setName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#3a7a30] transition"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">メールアドレス</label>
+                <input
+                  type="email" required value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#3a7a30] transition"
+                />
+              </div>
+              <button
+                type="submit" disabled={loading}
+                className="w-full bg-[#2a5c25] text-white py-3 rounded-xl font-medium hover:bg-[#1e4a1a] disabled:opacity-50 transition"
+              >
+                {loading ? '処理中...' : `¥${listing.price.toLocaleString()} でオーナー登録する`}
+              </button>
+            </form>
+          ) : (
+            <div className="mt-6 p-4 bg-gray-100 rounded-xl text-center text-gray-500">
+              この枠は満員です
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </main>
   )
 }

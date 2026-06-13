@@ -7,7 +7,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { data, error } = await supabase
     .from('listings')
     .select('*, producers(name, location, description)')
-    .eq('id', id)
+    .eq('short_id', id)
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 404 })
