@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(
   request: NextRequest,
@@ -8,14 +8,14 @@ export async function GET(
   const { id } = await params
   const userIdentifier = request.nextUrl.searchParams.get('user_identifier') ?? ''
 
-  const { count } = await supabase
+  const { count } = await getSupabaseAdmin()
     .from('growth_record_likes')
     .select('*', { count: 'exact', head: true })
     .eq('growth_record_id', id)
 
   let liked = false
   if (userIdentifier) {
-    const { data } = await supabase
+    const { data } = await getSupabaseAdmin()
       .from('growth_record_likes')
       .select('id')
       .eq('growth_record_id', id)
@@ -38,7 +38,7 @@ export async function POST(
     return Response.json({ error: 'user_identifier は必須です' }, { status: 400 })
   }
 
-  const { error } = await supabase
+  const { error } = await getSupabaseAdmin()
     .from('growth_record_likes')
     .insert({ growth_record_id: id, user_identifier })
 
@@ -47,7 +47,7 @@ export async function POST(
     return Response.json({ error: error.message }, { status: 500 })
   }
 
-  const { count } = await supabase
+  const { count } = await getSupabaseAdmin()
     .from('growth_record_likes')
     .select('*', { count: 'exact', head: true })
     .eq('growth_record_id', id)
@@ -66,7 +66,7 @@ export async function DELETE(
     return Response.json({ error: 'user_identifier は必須です' }, { status: 400 })
   }
 
-  const { error } = await supabase
+  const { error } = await getSupabaseAdmin()
     .from('growth_record_likes')
     .delete()
     .eq('growth_record_id', id)
@@ -74,7 +74,7 @@ export async function DELETE(
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
-  const { count } = await supabase
+  const { count } = await getSupabaseAdmin()
     .from('growth_record_likes')
     .select('*', { count: 'exact', head: true })
     .eq('growth_record_id', id)
