@@ -1,8 +1,20 @@
 import { createClient } from '@supabase/supabase-js'
 
-// サービスロールキーを使うサーバー専用クライアント（RLSをバイパス）
-// SUPABASE_SERVICE_ROLE_KEY は .env.local に設定が必要
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+let _client: ReturnType<typeof createClient> | null = null
+
+export function getSupabaseAdmin() {
+  if (!_client) {
+    _client = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+  }
+  return _client
+}
+
+// 後方互換エイリアス（既存のimportをそのまま使えるようにする）
+export const supabaseAdmin = new Proxy({} as ReturnType<typeof createClient>, {
+  get(_target, prop) {
+    return getSupabaseAdmin()[prop as keyof ReturnType<typeof createClient>]
+  },
+})
