@@ -125,7 +125,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
             const months = monthsUntil(listing.harvest_date)
 
             return (
-              <Link key={listing.id} href={`/listings/${listing.id}`}>
+              <Link key={listing.id} href={`/listings/${listing.short_id}`}>
                 <div className="rounded-2xl overflow-hidden hover:shadow-md transition cursor-pointer bg-[#f2f7f0]">
                   {/* Image */}
                   <div className="relative w-full h-44 bg-[#e4eee0] flex items-center justify-center">
