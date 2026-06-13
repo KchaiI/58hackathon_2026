@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const ownerLinks = [
-  { label: '枠一覧', href: '/', icon: '🌱' },
+  { label: '支援者枠マーケット', href: '/listings', icon: '🌱' },
   { label: 'マイページ', href: '/my', icon: '👤' },
 ]
 
@@ -34,17 +34,21 @@ export default function Sidebar() {
 
   const links = role === 'owner' ? ownerLinks : producerLinks
   const t = theme[role]
+  const isProducerPage = pathname.startsWith('/producer')
+  const btnColor = isProducerPage ? theme.producer.btn : theme.owner.btn
 
   useEffect(() => {
     const isProducer = pathname.startsWith('/producer')
     document.body.style.backgroundColor = isProducer ? '#eaf0f7' : '#eef6eb'
   }, [pathname])
 
+  if (pathname === '/login') return null
+
   return (
     <>
       <button
         onClick={() => setOpen(o => !o)}
-        className={`w-9 h-9 rounded-full text-white flex items-center justify-center shadow-md transition shrink-0 ${t.btn}`}
+        className={`w-9 h-9 rounded-full text-white flex items-center justify-center shadow-md transition shrink-0 ${btnColor}`}
       >
         {open ? '✕' : '☰'}
       </button>
@@ -58,8 +62,6 @@ export default function Sidebar() {
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="h-14" />
-
         {/* Role toggle */}
         <div className="mx-4 mt-4 mb-6 flex rounded-xl overflow-hidden border border-[#e0dbd2]">
           {(['owner', 'producer'] as const).map(r => (

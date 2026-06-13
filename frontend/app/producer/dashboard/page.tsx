@@ -74,7 +74,7 @@ export default function ProducerDashboard() {
         <select
           value={selectedId}
           onChange={e => setSelectedId(e.target.value)}
-          className="w-full bg-[#e8e4db] border-0 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#2a5c2a] text-[#1a1a1a] text-sm appearance-none cursor-pointer"
+          className="w-full bg-[#e8e4db] border-0 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1a3a5c] text-[#1a1a1a] text-sm appearance-none cursor-pointer"
         >
           <option value="">
             {producers.length === 0 ? '読み込み中...' : `-- 生産者を選んでください (${producers.length}件) --`}

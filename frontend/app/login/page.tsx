@@ -6,7 +6,7 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto mt-20 px-4">
-      <h1 className="text-2xl font-bold mb-2">ログイン</h1>
+      <h1 className="text-2xl font-bold mb-2 text-black">ログイン</h1>
       <p className="text-gray-500 text-sm mb-8">支援者枠マーケットへようこそ</p>
       <button
         onClick={() => router.push('/api/login')}
