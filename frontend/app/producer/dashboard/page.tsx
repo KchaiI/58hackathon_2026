@@ -28,6 +28,18 @@ type Listing = {
   ownerships: Ownership[]
 }
 
+function getStatus(listing: Listing): { label: string; cls: string } {
+  const sold = listing.total_slots - listing.available_slots
+  if (sold >= listing.total_slots) {
+    return { label: '満枠', cls: 'bg-[#e8dcc5] text-[#7a5020]' }
+  }
+  if (listing.harvest_date) {
+    const days = Math.ceil((new Date(listing.harvest_date).getTime() - Date.now()) / 86400000)
+    if (days <= 30) return { label: '収穫間近', cls: 'bg-[#e8dcc5] text-[#7a5020]' }
+  }
+  return { label: '育成中', cls: 'bg-[#d4e6c3] text-[#2a5c2a]' }
+}
+
 export default function ProducerDashboard() {
   const router = useRouter()
   const [producers, setProducers] = useState<Producer[]>([])
@@ -78,117 +90,160 @@ export default function ProducerDashboard() {
           href="/producer/create"
           className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
         >
-          新しい枠を出品する
-        </Link>
-      </div>
+          ← 一覧に戻る
+        </button>
 
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">生産者を選択</label>
-        <select
-          value={selectedId}
-          onChange={e => setSelectedId(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 bg-white"
-        >
-          <option value="">
-            {producers.length === 0 ? '読み込み中...' : `-- 生産者を選んでください (${producers.length}件) --`}
-          </option>
-          {producers.map(p => (
-            <option key={p.id} value={p.id}>
-              {p.name}{p.location ? ` (${p.location})` : ''}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {selectedProducer && (
-        <>
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="bg-green-50 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-green-700">{listings.length}</p>
-              <p className="text-sm text-gray-500 mt-1">出品中の枠</p>
-            </div>
-            <div className="bg-blue-50 rounded-xl p-4 text-center">
-              <p className="text-3xl font-bold text-blue-700">{totalOwners}</p>
-              <p className="text-sm text-gray-500 mt-1">オーナー総数</p>
-            </div>
-            <div className="bg-yellow-50 rounded-xl p-4 text-center">
-              <p className="text-2xl font-bold text-yellow-700">¥{totalRevenue.toLocaleString()}</p>
-              <p className="text-sm text-gray-500 mt-1">累計売上</p>
-            </div>
+        {/* ヘッダー */}
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1a1a1a]">生産者ダッシュボード</h1>
+            <p className="text-[#9a9080] mt-1 text-sm">自分の枠一覧とオーナー数を確認できます</p>
           </div>
+          <Link
+            href="/producer/new"
+            className="bg-[#2a5c2a] text-white px-4 py-2 rounded-xl hover:bg-[#1f4a1f] text-sm font-medium transition-colors"
+          >
+            新しい枠を出品する
+          </Link>
+        </div>
 
-          {loadingListings ? (
-            <p className="text-gray-400 text-center py-10">読み込み中...</p>
-          ) : listings.length === 0 ? (
-            <div className="text-center py-10 text-gray-400">
-              <p>まだ出品がありません</p>
+        {/* 生産者セレクター */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-[#5a5040] mb-2">生産者を選択</label>
+          <select
+            value={selectedId}
+            onChange={e => setSelectedId(e.target.value)}
+            className="w-full bg-[#e8e4db] border-0 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#2a5c2a] text-[#1a1a1a] text-sm appearance-none cursor-pointer"
+          >
+            <option value="">
+              {producers.length === 0 ? '読み込み中...' : `-- 生産者を選んでください (${producers.length}件) --`}
+            </option>
+            {producers.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.name}{p.location ? ` (${p.location})` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedProducer && (
+          <div className="border border-[#e0dbd2] rounded-2xl p-6">
+            {/* サマリーカード */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="bg-[#d4dfc8] rounded-2xl p-4">
+                <p className="text-xs text-[#9a9080] mb-1">出品中の枠</p>
+                <p className="text-3xl font-bold text-[#1a1a1a]">{listings.length}</p>
+              </div>
+              <div className="bg-[#d4dfc8] rounded-2xl p-4">
+                <p className="text-xs text-[#9a9080] mb-1">オーナー総数</p>
+                <p className="text-3xl font-bold text-[#1a1a1a]">{totalOwners}</p>
+              </div>
+              <div className="bg-[#d4dfc8] rounded-2xl p-4">
+                <p className="text-xs text-[#9a9080] mb-1">累計売上</p>
+                <p className="text-xl font-bold text-[#1a1a1a] leading-tight mt-1">
+                  ¥{totalRevenue.toLocaleString()}
+                </p>
+              </div>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {listings.map(listing => {
-                const sold = listing.total_slots - listing.available_slots
-                const pct = listing.total_slots > 0 ? Math.round((sold / listing.total_slots) * 100) : 0
-                const owners = listing.ownerships ?? []
-                return (
-                  <div key={listing.id} className="border rounded-xl p-5 hover:shadow-md transition">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                          {listing.crop}
-                        </span>
-                        <Link href={`/listings/${listing.id}`}>
-                          <h2 className="text-base font-semibold mt-2 hover:underline cursor-pointer">{listing.title}</h2>
-                        </Link>
-                        {listing.harvest_date && (
-                          <p className="text-xs text-gray-400 mt-1">収穫予定: {listing.harvest_date}</p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold">¥{listing.price.toLocaleString()}</p>
-                        <p className="text-xs text-gray-400">/枠</p>
-                      </div>
-                    </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 bg-gray-100 rounded-full h-2">
-                        <div
-                          className="bg-green-500 h-2 rounded-full transition-all"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-gray-600 whitespace-nowrap">
-                        {sold} / {listing.total_slots} 枠
-                        <span className="ml-2 text-green-600 font-medium">({pct}%)</span>
-                      </span>
-                    </div>
+            {loadingListings ? (
+              <p className="text-[#9a9080] text-center py-10 text-sm">読み込み中...</p>
+            ) : listings.length === 0 ? (
+              <div className="text-center py-10 text-[#9a9080]">
+                <p className="text-sm">まだ出品がありません</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {listings.map(listing => {
+                  const sold = listing.total_slots - listing.available_slots
+                  const pct = listing.total_slots > 0 ? Math.round((sold / listing.total_slots) * 100) : 0
+                  const owners = listing.ownerships ?? []
+                  const status = getStatus(listing)
+                  return (
+                    <div key={listing.id} className="bg-white rounded-2xl p-5">
+                      <div className="flex gap-4">
+                        {/* アイコンボックス */}
+                        <div className="w-14 h-14 rounded-2xl bg-[#dce8d0] flex items-center justify-center shrink-0">
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#2a5c2a"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M12 2a9 9 0 0 1 0 12" />
+                            <path d="M12 14V22" />
+                            <path d="M8 18c1.5-1 2.5-2.5 4-4" />
+                          </svg>
+                        </div>
 
-                    <div className="mt-3">
-                      <p className="text-sm font-medium text-gray-600 mb-2">
-                        オーナー ({owners.length}人)
-                      </p>
-                      {owners.length === 0 ? (
-                        <p className="text-xs text-gray-400">まだオーナーがいません</p>
-                      ) : (
-                        <ul className="space-y-1">
-                          {owners.map((o, i) => (
-                            <li key={i} className="flex items-center gap-2 text-sm">
-                              <span className="w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs flex items-center justify-center font-medium">
-                                {i + 1}
-                              </span>
-                              <span className="font-medium">{o.owner_name}</span>
-                              <span className="text-gray-400 text-xs">{o.owner_email}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        <div className="flex-1 min-w-0">
+                          {/* タイトル & バッジ */}
+                          <div className="flex justify-between items-start mb-3">
+                            <Link href={`/listings/${listing.id}`} className="min-w-0 flex-1 mr-3">
+                              <h2 className="text-base font-semibold text-[#1a1a1a] hover:underline leading-snug">
+                                {listing.title}
+                              </h2>
+                              <p className="text-xs text-[#9a9080] mt-0.5">{listing.crop}</p>
+                            </Link>
+                            <span className={`text-xs px-3 py-1 rounded-full font-medium shrink-0 ${status.cls}`}>
+                              {status.label}
+                            </span>
+                          </div>
+
+                          {/* プログレスバー */}
+                          <div className="mb-2">
+                            <div className="flex justify-between text-xs text-[#9a9080] mb-1">
+                              <span>定植</span>
+                              <span>収穫</span>
+                            </div>
+                            <div className="bg-[#d4dfc8] rounded-full h-2">
+                              <div
+                                className="bg-[#2a5c2a] h-2 rounded-full transition-all"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* サブテキスト */}
+                          <p className="text-xs text-[#9a9080]">
+                            {sold} / {listing.total_slots} 枠 ({pct}%)
+                            {listing.harvest_date && ` · 収穫予定: ${listing.harvest_date}`}
+                            {` · ¥${listing.price.toLocaleString()}/枠`}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* オーナーリスト */}
+                      {owners.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-[#f0ede6]">
+                          <p className="text-xs font-medium text-[#9a9080] mb-2">
+                            オーナー ({owners.length}人)
+                          </p>
+                          <ul className="space-y-1">
+                            {owners.map((o, i) => (
+                              <li key={i} className="flex items-center gap-2 text-sm">
+                                <span className="w-5 h-5 rounded-full bg-[#dce8d0] text-[#2a5c2a] text-xs flex items-center justify-center font-medium shrink-0">
+                                  {i + 1}
+                                </span>
+                                <span className="font-medium text-[#1a1a1a]">{o.owner_name}</span>
+                                <span className="text-[#9a9080] text-xs truncate">{o.owner_email}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </>
-      )}
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </main>
   )
 }
