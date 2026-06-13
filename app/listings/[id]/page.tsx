@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { supabase } from '@/lib/supabase'
 
 type Listing = {
   id: string
@@ -28,12 +27,9 @@ export default function ListingPage() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    supabase
-      .from('listings')
-      .select('*, producers(name, location, description)')
-      .eq('id', id)
-      .single()
-      .then(({ data }) => setListing(data))
+    fetch(`/api/listings/${id}`)
+      .then(res => res.json())
+      .then(data => setListing(data))
   }, [id])
 
   async function handlePurchase(e: React.FormEvent) {
@@ -41,19 +37,13 @@ export default function ListingPage() {
     if (!listing || listing.available_slots <= 0) return
     setLoading(true)
 
-    await supabase.from('ownerships').insert({
-      listing_id: listing.id,
-      owner_name: name,
-      owner_email: email,
-      slots: 1,
+    const res = await fetch('/api/ownerships', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listing_id: listing.id, owner_name: name, owner_email: email }),
     })
 
-    await supabase
-      .from('listings')
-      .update({ available_slots: listing.available_slots - 1 })
-      .eq('id', listing.id)
-
-    setDone(true)
+    if (res.ok) setDone(true)
     setLoading(false)
   }
 
@@ -102,9 +92,7 @@ export default function ListingPage() {
           <div>
             <label className="block text-sm text-gray-600 mb-1">お名前</label>
             <input
-              type="text"
-              required
-              value={name}
+              type="text" required value={name}
               onChange={e => setName(e.target.value)}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
             />
@@ -112,16 +100,13 @@ export default function ListingPage() {
           <div>
             <label className="block text-sm text-gray-600 mb-1">メールアドレス</label>
             <input
-              type="email"
-              required
-              value={email}
+              type="email" required value={email}
               onChange={e => setEmail(e.target.value)}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
           <button
-            type="submit"
-            disabled={loading}
+            type="submit" disabled={loading}
             className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
           >
             {loading ? '処理中...' : `¥${listing.price.toLocaleString()} でオーナー登録する`}

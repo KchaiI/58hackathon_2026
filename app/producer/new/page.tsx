@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 
 export default function NewListingPage() {
   const router = useRouter()
@@ -27,27 +26,14 @@ export default function NewListingPage() {
     e.preventDefault()
     setLoading(true)
 
-    const { data: producer } = await supabase
-      .from('producers')
-      .insert({ name: form.producerName, location: form.location })
-      .select()
-      .single()
-
-    if (!producer) { setLoading(false); return }
-
-    await supabase.from('listings').insert({
-      producer_id: producer.id,
-      title: form.title,
-      crop: form.crop,
-      description: form.description,
-      price: parseInt(form.price),
-      total_slots: parseInt(form.totalSlots),
-      available_slots: parseInt(form.totalSlots),
-      harvest_date: form.harvestDate || null,
-      image_url: form.imageUrl || null,
+    const res = await fetch('/api/producers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
     })
 
-    router.push('/')
+    if (res.ok) router.push('/')
+    else setLoading(false)
   }
 
   return (
