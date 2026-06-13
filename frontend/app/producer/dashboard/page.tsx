@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
 type Producer = {
   user_id: string
@@ -36,11 +37,132 @@ function getStatus(listing: Listing): { label: string; cls: string } {
   return { label: '育成中', cls: 'bg-[#d4e6c3] text-[#2a5c2a]' }
 }
 
+function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: () => void }) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [note, setNote] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0]
+    if (!f) return
+    setFile(f)
+    setPreview(URL.createObjectURL(f))
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!file) { setError('画像を選択してください'); return }
+    setUploading(true)
+    setError(null)
+
+    const ext = file.name.split('.').pop()
+    const path = `${listingId}/${Date.now()}.${ext}`
+    const { error: uploadError } = await supabase.storage
+      .from('growth-images')
+      .upload(path, file, { upsert: false })
+
+    if (uploadError) {
+      setError(`アップロード失敗: ${uploadError.message}`)
+      setUploading(false)
+      return
+    }
+
+    const { data: urlData } = supabase.storage.from('growth-images').getPublicUrl(path)
+    const imageUrl = urlData.publicUrl
+
+    const res = await fetch('/api/growth_records', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listing_id: listingId, image_url: imageUrl, note: note || null }),
+    })
+
+    if (!res.ok) {
+      const body = await res.json()
+      setError(body.error ?? '投稿に失敗しました')
+      setUploading(false)
+      return
+    }
+
+    setDone(true)
+    setUploading(false)
+  }
+
+  if (done) {
+    return (
+      <div className="mt-4 pt-4 border-t border-[#f0ede6] text-center py-6">
+        <p className="text-2xl mb-2">✅</p>
+        <p className="text-sm text-[#2a5c2a] font-medium">投稿しました</p>
+        <button onClick={onClose} className="mt-3 text-xs text-[#9a9080] underline">閉じる</button>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-4 pt-4 border-t border-[#f0ede6] space-y-3">
+      <p className="text-xs font-medium text-[#5a5040]">成長記録を投稿</p>
+
+      <div
+        onClick={() => fileRef.current?.click()}
+        className="relative w-full aspect-video rounded-xl bg-[#f2f7f0] border-2 border-dashed border-[#b4d4a4] flex items-center justify-center cursor-pointer hover:bg-[#e8f3e4] transition overflow-hidden"
+      >
+        {preview ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={preview} alt="preview" className="w-full h-full object-cover" />
+        ) : (
+          <div className="text-center">
+            <p className="text-3xl mb-1">📷</p>
+            <p className="text-xs text-[#9a9080]">タップして画像を選択</p>
+          </div>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+      </div>
+
+      <textarea
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="コメント（任意）　例：葉が大きく育ってきました！"
+        rows={2}
+        className="w-full bg-[#f2f7f0] rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3a7a30] resize-none"
+      />
+
+      {error && <p className="text-xs text-red-500">{error}</p>}
+
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={uploading}
+          className="flex-1 bg-[#2a5c25] text-white py-2 rounded-xl text-sm font-medium hover:bg-[#1e4a1a] disabled:opacity-50 transition"
+        >
+          {uploading ? 'アップロード中...' : '投稿する'}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 rounded-xl text-sm text-[#9a9080] bg-[#f0ede6] hover:bg-[#e8e4db] transition"
+        >
+          キャンセル
+        </button>
+      </div>
+    </form>
+  )
+}
+
 export default function ProducerDashboard() {
   const [producers, setProducers] = useState<Producer[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
   const [listings, setListings] = useState<Listing[]>([])
   const [loadingListings, setLoadingListings] = useState(false)
+  const [openFormId, setOpenFormId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/producers')
@@ -117,6 +239,7 @@ export default function ProducerDashboard() {
                 const pct = listing.total_slots > 0 ? Math.round((sold / listing.total_slots) * 100) : 0
                 const owners = listing.ownerships ?? []
                 const status = getStatus(listing)
+                const isOpen = openFormId === listing.id
                 return (
                   <div key={listing.id} className="bg-white rounded-2xl p-5">
                     <div className="flex gap-4">
@@ -150,7 +273,26 @@ export default function ProducerDashboard() {
                         </p>
                       </div>
                     </div>
-                    {owners.length > 0 && (
+
+                    {/* Growth record post button */}
+                    {!isOpen && (
+                      <button
+                        onClick={() => setOpenFormId(listing.id)}
+                        className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-[#b4d4a4] text-[#2a5c2a] text-sm hover:bg-[#f2f7f0] transition"
+                      >
+                        <span>📷</span>
+                        <span>成長記録を投稿する</span>
+                      </button>
+                    )}
+
+                    {isOpen && (
+                      <GrowthRecordForm
+                        listingId={listing.id}
+                        onClose={() => setOpenFormId(null)}
+                      />
+                    )}
+
+                    {owners.length > 0 && !isOpen && (
                       <div className="mt-4 pt-4 border-t border-[#f0ede6]">
                         <p className="text-xs font-medium text-[#9a9080] mb-2">支援者 ({owners.length}人)</p>
                         <ul className="space-y-1">

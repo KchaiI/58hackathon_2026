@@ -187,7 +187,7 @@ export default function MyPage() {
           const timeText = timeUntilText(listing.harvest_date);
 
           return (
-            <Link key={o.id} href={`/listings/${listing.id}`}>
+            <Link key={o.id} href={`/my/${listing.id}`}>
               <div className="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-4 hover:shadow-md transition cursor-pointer">
                 <div className="relative w-16 h-16 rounded-xl bg-[#e4eee0] flex-shrink-0 overflow-hidden flex items-center justify-center">
                   {listing.image_url ? (
