@@ -19,6 +19,7 @@ class ListingResponse(BaseModel):
     producers: ProducerInfo | None = None
 
 class ListingCreate(BaseModel):
+    user_id: UUID
     producerName: str
     location: str | None = None
     title: str
@@ -31,5 +32,4 @@ class ListingCreate(BaseModel):
 
 class OwnershipCreate(BaseModel):
     listing_id: UUID
-    owner_name: str
-    owner_email: str
+    user_id: UUID

@@ -9,14 +9,15 @@ router = APIRouter()
 @router.get("/")
 def get_producers() -> list[Any]:
     res = supabase.from_("producers") \
-        .select("id, name, location") \
+        .select("user_id, name, location") \
         .order("created_at", desc=True) \
         .execute()
     return res.data or []
 
 @router.post("/", status_code=201)
 def create_producer_and_listing(body: ListingCreate):
-    producer_res = supabase.from_("producers").insert({
+    producer_res = supabase.from_("producers").upsert({
+        "user_id": str(body.user_id),
         "name": body.producerName,
         "location": body.location,
     }).select().execute()
@@ -27,7 +28,7 @@ def create_producer_and_listing(body: ListingCreate):
     producer = cast(ProducerRow, producer_res.data[0])
 
     listing_res = supabase.from_("listings").insert({
-        "producer_id": str(producer["id"]),
+        "producer_id": str(producer["user_id"]),
         "title": body.title,
         "crop": body.crop,
         "description": body.description,

@@ -1,59 +1,69 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function CreateListingPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    producerName: '',
-    location: '',
-    title: '',
-    crop: '',
-    description: '',
-    price: '',
-    totalSlots: '',
-    harvestDate: '',
-    imageUrl: '',
-  })
+    producerName: "",
+    location: "",
+    title: "",
+    crop: "",
+    description: "",
+    price: "",
+    totalSlots: "",
+    harvestDate: "",
+    imageUrl: "",
+  });
 
   function set(key: string, value: string) {
-    setForm(f => ({ ...f, [key]: value }))
+    setForm((f) => ({ ...f, [key]: value }));
   }
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      router.push("/login");
+      return;
+    }
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/producers/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    if (res.ok) router.push('/')
-    else setLoading(false)
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, user_id: user.id }),
+    });
+    if (res.ok) router.push("/");
+    else setLoading(false);
   }
 
-  const inputClass = "w-full bg-[#f2f7f0] rounded-xl px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3a7a30] transition"
+  const inputClass =
+    "w-full bg-[#f2f7f0] rounded-xl px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3a7a30] transition";
 
   return (
     <main className="w-full px-12 py-8">
       <button
-        onClick={() => router.push('/')}
+        onClick={() => router.push("/")}
         className="flex items-center gap-1 text-sm text-white bg-[#2a5c25] px-4 py-2 rounded-lg hover:bg-[#1e4a1a] transition mb-8"
       >
-        {'←'} 一覧に戻る
+        {"←"} 一覧に戻る
       </button>
 
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-1">オーナー枠を出品する</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-1">
+          オーナー枠を出品する
+        </h1>
         <p className="text-sm text-gray-600 mb-8">
-          畑の一区画を、世界中のオーナーに。<span className="text-red-500">*</span> は必須項目です
-
+          畑の一区画を、世界中のオーナーに。
+          <span className="text-red-500">*</span> は必須項目です
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-
           {/* 生産者情報 */}
           <section>
             <h2 className="text-lg font-bold text-[#3a7a30] pb-2 border-b border-gray-200 mb-4">
@@ -65,17 +75,22 @@ export default function CreateListingPage() {
                   農家・生産者名 <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text" required value={form.producerName}
-                  onChange={e => set('producerName', e.target.value)}
+                  type="text"
+                  required
+                  value={form.producerName}
+                  onChange={(e) => set("producerName", e.target.value)}
                   placeholder="例：長野わさび農園"
                   className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-1.5">所在地</label>
+                <label className="block text-base font-bold text-gray-800 mb-1.5">
+                  所在地
+                </label>
                 <input
-                  type="text" value={form.location}
-                  onChange={e => set('location', e.target.value)}
+                  type="text"
+                  value={form.location}
+                  onChange={(e) => set("location", e.target.value)}
                   placeholder="例：長野県松本市"
                   className={inputClass}
                 />
@@ -94,8 +109,10 @@ export default function CreateListingPage() {
                   タイトル <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text" required value={form.title}
-                  onChange={e => set('title', e.target.value)}
+                  type="text"
+                  required
+                  value={form.title}
+                  onChange={(e) => set("title", e.target.value)}
                   placeholder="例：長野産わさびのオーナーになろう"
                   className={inputClass}
                 />
@@ -105,17 +122,21 @@ export default function CreateListingPage() {
                   作物・品目 <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text" required value={form.crop}
-                  onChange={e => set('crop', e.target.value)}
+                  type="text"
+                  required
+                  value={form.crop}
+                  onChange={(e) => set("crop", e.target.value)}
                   placeholder="例：わさび、抹茶、山椒、杉"
                   className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-base font-bold text-gray-800 mb-1.5">説明</label>
+                <label className="block text-base font-bold text-gray-800 mb-1.5">
+                  説明
+                </label>
                 <textarea
                   value={form.description}
-                  onChange={e => set('description', e.target.value)}
+                  onChange={(e) => set("description", e.target.value)}
                   rows={4}
                   placeholder="育て方・収穫物・特徴など"
                   className={inputClass}
@@ -130,8 +151,10 @@ export default function CreateListingPage() {
                     価格（円） <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="number" required value={form.price}
-                    onChange={e => set('price', e.target.value)}
+                    type="number"
+                    required
+                    value={form.price}
+                    onChange={(e) => set("price", e.target.value)}
                     placeholder="50000"
                     className={inputClass}
                   />
@@ -141,8 +164,10 @@ export default function CreateListingPage() {
                     枠数 <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="number" required value={form.totalSlots}
-                    onChange={e => set('totalSlots', e.target.value)}
+                    type="number"
+                    required
+                    value={form.totalSlots}
+                    onChange={(e) => set("totalSlots", e.target.value)}
                     placeholder="10"
                     className={inputClass}
                   />
@@ -150,21 +175,29 @@ export default function CreateListingPage() {
               </div>
               <div>
                 <label className="block text-base font-bold text-gray-800 mb-1.5">
-                  収穫予定日 <span className="text-xs text-gray-400 font-normal ml-1">任意</span>
+                  収穫予定日{" "}
+                  <span className="text-xs text-gray-400 font-normal ml-1">
+                    任意
+                  </span>
                 </label>
                 <input
-                  type="date" value={form.harvestDate}
-                  onChange={e => set('harvestDate', e.target.value)}
+                  type="date"
+                  value={form.harvestDate}
+                  onChange={(e) => set("harvestDate", e.target.value)}
                   className={inputClass}
                 />
               </div>
               <div>
                 <label className="block text-base font-bold text-gray-800 mb-1.5">
-                  画像URL <span className="text-xs text-gray-400 font-normal ml-1">任意</span>
+                  画像URL{" "}
+                  <span className="text-xs text-gray-400 font-normal ml-1">
+                    任意
+                  </span>
                 </label>
                 <input
-                  type="url" value={form.imageUrl}
-                  onChange={e => set('imageUrl', e.target.value)}
+                  type="url"
+                  value={form.imageUrl}
+                  onChange={(e) => set("imageUrl", e.target.value)}
                   placeholder="https://..."
                   className={inputClass}
                 />
@@ -173,13 +206,14 @@ export default function CreateListingPage() {
           </section>
 
           <button
-            type="submit" disabled={loading}
+            type="submit"
+            disabled={loading}
             className="w-full bg-[#2a5c25] text-white py-3.5 rounded-xl font-medium hover:bg-[#1e4a1a] disabled:opacity-50 transition"
           >
-            {loading ? '出品中...' : '出品する'}
+            {loading ? "出品中..." : "出品する"}
           </button>
         </form>
       </div>
     </main>
-  )
+  );
 }
