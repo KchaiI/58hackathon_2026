@@ -1,20 +1,28 @@
 import { NextRequest } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const email = request.nextUrl.searchParams.get('email')
+  if (email) {
+    const { data } = await supabase
+      .from('producers')
+      .select('user_id, name, location, email')
+      .eq('email', email)
+    return Response.json(data ?? [])
+  }
   const { data } = await supabase
     .from('producers')
-    .select('user_id, name, location')
+    .select('user_id, name, location, email')
     .order('created_at', { ascending: false })
   return Response.json(data ?? [])
 }
 
 export async function POST(request: NextRequest) {
-  const { producerName, location, title, crop, description, price, totalSlots, harvestDate, imageUrl } = await request.json()
+  const { producerName, location, email, title, crop, description, price, totalSlots, harvestDate, imageUrl } = await request.json()
 
   const { data: producer, error: producerError } = await supabase
     .from('producers')
-    .insert({ user_id: crypto.randomUUID(), name: producerName, location })
+    .insert({ user_id: crypto.randomUUID(), name: producerName, location, email: email || null })
     .select()
     .single()
 
