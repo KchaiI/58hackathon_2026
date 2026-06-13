@@ -75,7 +75,7 @@ export default function ProducerDashboard() {
           <p className="text-gray-500 mt-1 text-sm">自分の枠一覧とオーナー数を確認できます</p>
         </div>
         <Link
-          href="/producer/new"
+          href="/producer/create"
           className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
         >
           新しい枠を出品する
