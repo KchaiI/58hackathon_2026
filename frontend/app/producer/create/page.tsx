@@ -1,11 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 export default function CreateListingPage() {
   const router = useRouter()
+  const fileRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [form, setForm] = useState({
     producerName: '',
     location: '',
@@ -22,13 +26,37 @@ export default function CreateListingPage() {
     setForm(f => ({ ...f, [key]: value }))
   }
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0]
+    if (!f) return
+    setImageFile(f)
+    setPreview(URL.createObjectURL(f))
+  }
+
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
+
+    let imageUrl = form.imageUrl
+    if (imageFile) {
+      const ext = imageFile.name.split('.').pop()
+      const path = `${Date.now()}.${ext}`
+      const { error } = await supabase.storage
+        .from('listing-images')
+        .upload(path, imageFile, { upsert: false })
+      if (error) {
+        alert(`画像のアップロードに失敗しました: ${error.message}`)
+        setLoading(false)
+        return
+      }
+      const { data } = supabase.storage.from('listing-images').getPublicUrl(path)
+      imageUrl = data.publicUrl
+    }
+
     const res = await fetch('/api/producers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, imageUrl }),
     })
     if (res.ok) router.push('/')
     else setLoading(false)
@@ -107,9 +135,29 @@ export default function CreateListingPage() {
               </div>
               <div>
                 <label className="block text-base font-bold text-gray-800 mb-1.5">
-                  画像URL <span className="text-xs text-gray-400 font-normal ml-1">任意</span>
+                  画像 <span className="text-xs text-gray-400 font-normal ml-1">任意</span>
                 </label>
-                <input type="url" value={form.imageUrl} onChange={e => set('imageUrl', e.target.value)} placeholder="https://..." className={inputClass} />
+                <div
+                  onClick={() => fileRef.current?.click()}
+                  className="relative w-full aspect-video rounded-xl bg-[#f0f4f8] border border-black flex items-center justify-center cursor-pointer hover:bg-[#e8edf2] transition overflow-hidden"
+                >
+                  {preview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={preview} alt="preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-center">
+                      <p className="text-3xl mb-1">📷</p>
+                      <p className="text-sm text-gray-400">タップして画像を選択</p>
+                    </div>
+                  )}
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </div>
               </div>
             </div>
           </section>
