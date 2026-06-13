@@ -114,6 +114,11 @@ export default function CreateListingPage() {
             </div>
           </section>
 
+          {error && (
+            <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+              エラー: {error}
+            </p>
+          )}
           <button
             type="submit" disabled={loading}
             className="w-full bg-[#1a3a5c] text-white py-3.5 rounded-xl font-medium hover:bg-[#0f2540] disabled:opacity-50 transition"
