@@ -31,6 +31,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-100 flex items-center px-4 shadow-sm">
           <Sidebar />
+          <span className="ml-3 font-bold text-gray-900">仮タイトル</span>
         </header>
         <div className="pt-14">
           {children}
