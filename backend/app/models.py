@@ -2,7 +2,7 @@ from typing import TypedDict
 from uuid import UUID
 
 class ProducerRow(TypedDict):
-    id: UUID
+    user_id: UUID
     name: str
     location: str | None
     description: str | None
@@ -27,8 +27,13 @@ class ListingWithProducerRow(ListingRow):
 
 class OwnershipRow(TypedDict):
     id: UUID
+    user_id: str | None
     listing_id: str | None
-    owner_name: str
-    owner_email: str
     slots: int
     created_at: str | None
+
+class ProfileRow(TypedDict):
+    id: UUID
+    name: str
+    email: str
+    address: str | None

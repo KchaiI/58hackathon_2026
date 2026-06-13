@@ -12,7 +12,7 @@ router = APIRouter()
 def get_listings(producer_id: str | None = Query(default=None)) -> list[Any]:
     if producer_id:
         res = supabase.from_("listings") \
-            .select("*, ownerships(owner_name, owner_email)") \
+            .select("*, ownerships(user_id, profiles(name, email))") \
             .eq("producer_id", producer_id) \
             .order("created_at", desc=True) \
             .execute()

@@ -15,3 +15,4 @@
 | `image_url`       | `text`        | Nullable    |
 | `harvest_date`    | `date`        | Nullable    |
 | `created_at`      | `timestamptz` | Nullable    |
+| `short_id`        | `int4`        |             |

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 type Listing = {
   id: string;
@@ -16,8 +18,6 @@ type Listing = {
 
 type Ownership = {
   id: string;
-  owner_name: string;
-  owner_email: string;
   created_at: string;
   listings: Listing | null;
 };
@@ -92,64 +92,33 @@ function sinceYear(ownerships: Ownership[]): number {
 }
 
 export default function MyPage() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [profile, setProfile] = useState<{ name: string } | null>(null);
   const [ownerships, setOwnerships] = useState<Ownership[]>([]);
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/ownerships/?email=${encodeURIComponent(email)}`,
-    );
-    const data = await res.json();
-    setOwnerships(Array.isArray(data) ? data : []);
-    setSubmitted(true);
-    setLoading(false);
-  }
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => setProfile(data));
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/ownerships/?user_id=${user.id}`)
+        .then((r) => r.json())
+        .then((data) => setOwnerships(Array.isArray(data) ? data : []));
+    });
+  }, [router]);
 
-  const name = ownerships[0]?.owner_name ?? "";
+  const name = profile?.name ?? "";
   const nearHarvest = ownerships.filter((o) => {
     const w = weeksUntil(o.listings?.harvest_date ?? null);
     return w !== null && w <= 4;
   }).length;
-
-  if (!submitted) {
-    return (
-      <main className="w-full px-12 py-8">
-        <Link
-          href="/"
-          className="text-gray-400 hover:text-gray-600 text-sm mb-8 block"
-        >
-          {"←"} 一覧に戻る
-        </Link>
-        <div className="max-w-md mx-auto mt-20">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">マイページ</h1>
-          <p className="text-gray-500 text-sm mb-8">
-            登録したメールアドレスで所有枠を確認できます
-          </p>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="メールアドレスを入力"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#3a7a30] transition"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#2a5c25] text-white py-3 rounded-xl font-medium hover:bg-[#1e4a1a] disabled:opacity-50 transition"
-            >
-              {loading ? "検索中..." : "確認する"}
-            </button>
-          </form>
-        </div>
-      </main>
-    );
-  }
 
   if (ownerships.length === 0) {
     return (

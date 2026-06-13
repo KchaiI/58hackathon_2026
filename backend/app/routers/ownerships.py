@@ -9,10 +9,10 @@ from app.models import ListingRow
 router = APIRouter()
 
 @router.get("/")
-def get_ownerships(email: str = Query(...)) -> list[Any]:
+def get_ownerships(user_id: str = Query(...)) -> list[Any]:
     res = supabase.from_("ownerships") \
         .select("*, listings(id, title, crop, image_url, harvest_date, created_at, producers(name, location))") \
-        .eq("owner_email", email) \
+        .eq("user_id", user_id) \
         .order("created_at", desc=True) \
         .execute()
     return res.data or []
@@ -41,8 +41,7 @@ def create_ownership(body: OwnershipCreate):
 
     supabase.from_("ownerships").insert({
         "listing_id": str(body.listing_id),
-        "owner_name": body.owner_name,
-        "owner_email": body.owner_email,
+        "user_id": str(body.user_id),
         "slots": 1,
     }).execute()
 
