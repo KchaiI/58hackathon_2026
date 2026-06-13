@@ -38,24 +38,11 @@ export default function ListingPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
 
-  useEffect(() => {
+useEffect(() => {
     fetch(`/api/listings/${id}`)
       .then(res => res.json())
       .then(data => setListing(data))
   }, [id])
-
-  async function handlePurchase(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (!listing || listing.available_slots <= 0) return
-    setLoading(true)
-    const res = await fetch('/api/ownerships', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ listing_id: listing.id, owner_name: name, owner_email: email }),
-    })
-    if (res.ok) setDone(true)
-    setLoading(false)
-  }
 
   if (!listing) {
     return <div className="max-w-5xl mx-auto px-8 py-8 text-gray-400">読み込み中...</div>
@@ -112,7 +99,7 @@ export default function ListingPage() {
           {done ? (
             <div className="mt-6 p-6 bg-green-50 border border-green-200 rounded-xl text-center">
               <p className="text-2xl mb-2">🎉</p>
-              <p className="font-semibold text-green-700">オーナー登録が完了しました！</p>
+              <p className="font-semibold text-green-700">支援者登録が完了しました！</p>
               <p className="text-sm text-gray-500 mt-1">{email} に確認メールを送信しました</p>
             </div>
           ) : listing.available_slots > 0 ? (
@@ -140,10 +127,10 @@ export default function ListingPage() {
                 />
               </div>
               <button
-                type="submit"
-                className="w-full bg-[#2a5c25] text-white py-3 rounded-xl font-medium hover:bg-[#1e4a1a] transition"
+                type="submit" disabled={loading}
+                className="w-full bg-[#2a5c25] text-white py-3 rounded-xl font-medium hover:bg-[#1e4a1a] disabled:opacity-50 transition"
               >
-                ¥{listing.price.toLocaleString()} でオーナー登録する
+                {loading ? '処理中...' : `¥${listing.price.toLocaleString()} で支援者登録する`}
               </button>
             </form>
           ) : (

@@ -49,26 +49,12 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
               <path d="M12 22V12M12 12C12 7 7 3 2 3c0 5 4 9 10 9zM12 12C12 7 17 3 22 3c0 5-4 9-10 9z" />
             </svg>
             <h1 className="text-4xl font-bold text-gray-900">
-              オーナー枠マーケット
+              支援者枠マーケット
             </h1>
           </div>
           <p className="text-gray-500 text-sm mt-1">
-            日本の農家・林業家のオーナーになろう
+            日本の農家・林業家の支援者になろう
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            href="/producer/dashboard"
-            className="border border-[#2a5c25] text-[#2a5c25] px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-green-50 transition"
-          >
-            生産者ダッシュボード
-          </Link>
-          <Link
-            href="/producer/create"
-            className="bg-[#2a5c25] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#1e4a1a] transition"
-          >
-            枠を出品する
-          </Link>
         </div>
       </div>
 
@@ -134,7 +120,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
 
             return (
               <Link key={listing.id} href={`/listings/${listing.id}`}>
-                <div className="rounded-2xl overflow-hidden hover:shadow-md transition cursor-pointer bg-[#f2f7f0]">
+                <div className="rounded-2xl overflow-hidden hover:shadow-md transition cursor-pointer bg-[#f2f7f0] border border-black">
                   {/* Image */}
                   <div className="relative w-full h-44 bg-[#e4eee0] flex items-center justify-center">
                     <Image

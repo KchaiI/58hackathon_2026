@@ -12,15 +12,15 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const { producerName, location, title, crop, description, price, totalSlots, harvestDate, imageUrl } = await request.json()
 
-  const { data: producer } = await supabase
+  const { data: producer, error: producerError } = await supabase
     .from('producers')
     .insert({ user_id: crypto.randomUUID(), name: producerName, location })
     .select()
     .single()
 
-  if (!producer) return Response.json({ error: '生産者の登録に失敗しました' }, { status: 500 })
+  if (!producer) return Response.json({ error: '生産者の登録に失敗しました', detail: producerError?.message }, { status: 500 })
 
-  const { data: listing } = await supabase
+  const { data: listing, error: listingError } = await supabase
     .from('listings')
     .insert({
       producer_id: producer.user_id,
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     .select()
     .single()
 
-  if (!listing) return Response.json({ error: '出品の登録に失敗しました' }, { status: 500 })
+  if (!listing) return Response.json({ error: '出品の登録に失敗しました', detail: listingError?.message }, { status: 500 })
 
   return Response.json(listing, { status: 201 })
 }

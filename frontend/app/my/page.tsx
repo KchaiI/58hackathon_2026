@@ -107,12 +107,6 @@ export default function MyPage() {
   if (!submitted) {
     return (
       <main className="w-full px-12 py-8">
-        <Link
-          href="/"
-          className="text-gray-400 hover:text-gray-600 text-sm mb-8 block"
-        >
-          {"←"} 一覧に戻る
-        </Link>
         <div className="max-w-md mx-auto mt-20">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">マイページ</h1>
           <p className="text-gray-500 text-sm mb-8">
@@ -143,12 +137,6 @@ export default function MyPage() {
   if (ownerships.length === 0) {
     return (
       <main className="w-full px-12 py-8">
-        <Link
-          href="/"
-          className="text-gray-400 hover:text-gray-600 text-sm mb-8 block"
-        >
-          {"←"} 一覧に戻る
-        </Link>
         <div className="text-center py-20 text-gray-400">
           <p className="text-5xl mb-4">🌱</p>
           <p>所有している枠がありません</p>
@@ -165,13 +153,6 @@ export default function MyPage() {
 
   return (
     <main className="w-full px-12 py-8">
-      <Link
-        href="/"
-        className="text-gray-400 hover:text-gray-600 text-sm mb-8 block"
-      >
-        {"←"} 一覧に戻る
-      </Link>
-
       <div className="flex items-center gap-4 mb-8">
         <div className="w-14 h-14 rounded-full bg-[#e4eee0] flex items-center justify-center text-[#3a7a30] font-bold text-lg">
           {name.slice(0, 2).toUpperCase()}
