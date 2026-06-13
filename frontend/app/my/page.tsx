@@ -74,7 +74,7 @@ function sinceYear(ownerships: Ownership[]): number {
 }
 
 export default function MyPage() {
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState('demo@example.com')
   const [submitted, setSubmitted] = useState(false)
   const [ownerships, setOwnerships] = useState<Ownership[]>([])
   const [loading, setLoading] = useState(false)
