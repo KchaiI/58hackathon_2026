@@ -64,7 +64,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
             生産者ダッシュボード
           </Link>
           <Link
-            href="/producer/new"
+            href="/producer/create"
             className="bg-[#2a5c25] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#1e4a1a] transition"
           >
             枠を出品する
@@ -188,7 +188,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
           <p className="text-5xl mb-4">🌱</p>
           <p>まだ出品がありません</p>
           <Link
-            href="/producer/new"
+            href="/producer/create"
             className="text-[#3a7a30] underline mt-2 block"
           >
             最初の枠を出品する
