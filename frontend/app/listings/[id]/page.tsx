@@ -116,7 +116,13 @@ export default function ListingPage() {
               <p className="text-sm text-gray-500 mt-1">{email} に確認メールを送信しました</p>
             </div>
           ) : listing.available_slots > 0 ? (
-            <form onSubmit={handlePurchase} className="mt-6 space-y-4">
+            <form
+              className="mt-6 space-y-4"
+              onSubmit={e => {
+                e.preventDefault()
+                router.push(`/payment_demo?price=${listing.price}&title=${encodeURIComponent(listing.title)}&listing_id=${listing.id}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`)
+              }}
+            >
               <div>
                 <label className="block text-sm text-gray-700 mb-1">お名前</label>
                 <input
@@ -134,10 +140,10 @@ export default function ListingPage() {
                 />
               </div>
               <button
-                type="submit" disabled={loading}
-                className="w-full bg-[#2a5c25] text-white py-3 rounded-xl font-medium hover:bg-[#1e4a1a] disabled:opacity-50 transition"
+                type="submit"
+                className="w-full bg-[#2a5c25] text-white py-3 rounded-xl font-medium hover:bg-[#1e4a1a] transition"
               >
-                {loading ? '処理中...' : `¥${listing.price.toLocaleString()} でオーナー登録する`}
+                ¥{listing.price.toLocaleString()} でオーナー登録する
               </button>
             </form>
           ) : (
