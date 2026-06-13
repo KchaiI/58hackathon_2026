@@ -284,7 +284,7 @@ export default function ProducerDashboard() {
         <div className="border border-[#e0dbd2] rounded-2xl p-6">
           <div className="grid grid-cols-3 gap-3 mb-6">
             <div className="bg-[#d4e0f0] rounded-2xl p-4">
-              <p className="text-xs text-[#9a9080] mb-1">出品中の枠</p>
+              <p className="text-xs text-[#9a9080] mb-1">出品中の品目数</p>
               <p className="text-3xl font-bold text-[#1a1a1a]">{listings.length}</p>
             </div>
             <div className="bg-[#d4e0f0] rounded-2xl p-4">
@@ -314,12 +314,17 @@ export default function ProducerDashboard() {
                 return (
                   <div key={listing.id} className="bg-white rounded-2xl p-5">
                     <div className="flex gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-[#dde8f5] flex items-center justify-center shrink-0">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M12 2a9 9 0 0 1 0 12" />
-                          <path d="M12 14V22" />
-                          <path d="M8 18c1.5-1 2.5-2.5 4-4" />
-                        </svg>
+                      <div className="w-14 h-14 rounded-2xl bg-[#dde8f5] flex items-center justify-center shrink-0 overflow-hidden">
+                        {listing.image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={listing.image_url} alt={listing.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2a9 9 0 0 1 0 12" />
+                            <path d="M12 14V22" />
+                            <path d="M8 18c1.5-1 2.5-2.5 4-4" />
+                          </svg>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-3">
