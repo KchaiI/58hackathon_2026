@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function CreateListingPage() {
   const router = useRouter();
@@ -26,17 +25,10 @@ export default function CreateListingPage() {
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/producers/`, {
+    const res = await fetch("/api/producers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, user_id: user.id }),
+      body: JSON.stringify(form),
     });
     if (res.ok) router.push("/");
     else setLoading(false);
