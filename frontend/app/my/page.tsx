@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -39,10 +39,7 @@ function monthsUntil(dateStr: string | null): number | null {
   return diff > 0 ? diff : null;
 }
 
-function harvestProgress(
-  createdAt: string,
-  harvestDate: string | null,
-): number {
+function harvestProgress(createdAt: string, harvestDate: string | null): number {
   if (!harvestDate) return 30;
   const start = new Date(createdAt).getTime();
   const end = new Date(harvestDate).getTime();
@@ -75,8 +72,16 @@ function timeUntilText(harvestDate: string | null): string {
 
 function sinceYear(ownerships: Ownership[]): number {
   if (!ownerships.length) return new Date().getFullYear();
-  return Math.min(
-    ...ownerships.map((o) => new Date(o.created_at).getFullYear()),
+  return Math.min(...ownerships.map((o) => new Date(o.created_at).getFullYear()));
+}
+
+function PlaceholderImage() {
+  return (
+    <div className="w-full h-full bg-[#e4eee0] flex items-center justify-center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-10 h-10 text-[#7aaa6a]">
+        <path d="M12 22V12M12 12C12 7 7 3 2 3c0 5 4 9 10 9zM12 12C12 7 17 3 22 3c0 5-4 9-10 9z" />
+      </svg>
+    </div>
   );
 }
 
@@ -85,15 +90,33 @@ export default function MyPage() {
   const [submitted, setSubmitted] = useState(false);
   const [ownerships, setOwnerships] = useState<Ownership[]>([]);
   const [loading, setLoading] = useState(false);
+  const [latestImages, setLatestImages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (ownerships.length === 0) return;
+    const listingIds = ownerships.map((o) => o.listings?.id).filter(Boolean) as string[];
+    Promise.all(
+      listingIds.map((id) =>
+        fetch(`/api/growth_records?listing_id=${id}`)
+          .then((r) => r.json())
+          .then((records) => ({ id, url: records[0]?.image_url ?? null }))
+          .catch(() => ({ id, url: null }))
+      )
+    ).then((results) => {
+      const map: Record<string, string> = {};
+      results.forEach(({ id, url }) => { if (url) map[id] = url; });
+      setLatestImages(map);
+    });
+  }, [ownerships]);
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    const res = await fetch(
-      `/api/ownerships?email=${encodeURIComponent(email)}`,
-    );
+    const res = await fetch(`/api/ownerships?email=${encodeURIComponent(email)}`);
     const data = await res.json();
     setOwnerships(Array.isArray(data) ? data : []);
+    sessionStorage.setItem('user_email', email);
+    sessionStorage.setItem('user_name', Array.isArray(data) && data[0]?.owner_name ? data[0].owner_name : email);
     setSubmitted(true);
     setLoading(false);
   }
@@ -140,10 +163,7 @@ export default function MyPage() {
         <div className="text-center py-20 text-gray-400">
           <p className="text-5xl mb-4">🌱</p>
           <p>所有している枠がありません</p>
-          <Link
-            href="/"
-            className="text-[#3a7a30] underline mt-2 block text-sm"
-          >
+          <Link href="/" className="text-[#3a7a30] underline mt-2 block text-sm">
             枠を探す
           </Link>
         </div>
@@ -153,6 +173,7 @@ export default function MyPage() {
 
   return (
     <main className="w-full px-12 py-8">
+      {/* Profile */}
       <div className="flex items-center gap-4 mb-8">
         <div className="w-14 h-14 rounded-full bg-[#e4eee0] flex items-center justify-center text-[#3a7a30] font-bold text-lg">
           {name.slice(0, 2).toUpperCase()}
@@ -165,11 +186,11 @@ export default function MyPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
         {[
           { label: "所有中", value: ownerships.length },
           { label: "収穫間近", value: nearHarvest },
-          { label: "新着の近況", value: 5 },
         ].map(({ label, value }) => (
           <div key={label} className="bg-[#f5f3f0] rounded-2xl p-5">
             <p className="text-sm text-gray-500">{label}</p>
@@ -178,61 +199,55 @@ export default function MyPage() {
         ))}
       </div>
 
-      <div className="space-y-3">
+      {/* Card grid */}
+      <div className="grid grid-cols-2 gap-4">
         {ownerships.map((o) => {
           const listing = o.listings;
           if (!listing) return null;
           const pct = harvestProgress(listing.created_at, listing.harvest_date);
           const label = harvestLabel(listing.harvest_date);
           const timeText = timeUntilText(listing.harvest_date);
+          const imageUrl = latestImages[listing.id] ?? listing.image_url;
 
           return (
             <Link key={o.id} href={`/my/${listing.id}`}>
-              <div className="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-4 hover:shadow-md transition cursor-pointer">
-                <div className="relative w-16 h-16 rounded-xl bg-[#e4eee0] flex-shrink-0 overflow-hidden flex items-center justify-center">
-                  {listing.image_url ? (
+              <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition cursor-pointer">
+                {/* Card image */}
+                <div className="relative w-full aspect-4/3">
+                  {imageUrl ? (
                     <Image
-                      src={listing.image_url}
+                      src={imageUrl}
                       alt={listing.title}
                       fill
                       className="object-cover"
                       unoptimized
                     />
                   ) : (
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      className="w-7 h-7 text-[#7aaa6a]"
-                    >
-                      <path d="M12 22V12M12 12C12 7 7 3 2 3c0 5 4 9 10 9zM12 12C12 7 17 3 22 3c0 5-4 9-10 9z" />
-                    </svg>
+                    <PlaceholderImage />
                   )}
+                  <span className={`absolute top-2 right-2 text-xs px-2.5 py-1 rounded-full font-medium ${harvestLabelStyle(label)}`}>
+                    {label}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start">
-                    <p className="font-semibold text-gray-900 text-sm">
-                      {listing.crop}・{listing.producers?.name}
-                    </p>
-                    <span
-                      className={`text-xs px-2.5 py-1 rounded-full font-medium ml-2 flex-shrink-0 ${harvestLabelStyle(label)}`}
-                    >
-                      {label}
-                    </span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
+
+                {/* Card body */}
+                <div className="p-4">
+                  <p className="font-semibold text-gray-900 text-sm leading-snug">
+                    {listing.crop}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {listing.producers?.name}・{listing.producers?.location}
+                  </p>
+
+                  <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
                     <span>定植</span>
                     <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#3a7a30] rounded-full"
-                        style={{ width: `${pct}%` }}
-                      />
+                      <div className="h-full bg-[#3a7a30] rounded-full" style={{ width: `${pct}%` }} />
                     </div>
                     <span>収穫</span>
                   </div>
                   {timeText && (
-                    <p className="text-xs text-gray-400 mt-1">{timeText}</p>
+                    <p className="text-xs text-gray-400 mt-1.5">{timeText}</p>
                   )}
                 </div>
               </div>
