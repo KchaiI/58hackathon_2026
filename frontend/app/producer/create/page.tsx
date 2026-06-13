@@ -13,6 +13,7 @@ export default function CreateListingPage() {
   const [form, setForm] = useState({
     producerName: '',
     location: '',
+    email: '',
     title: '',
     crop: '',
     description: '',
@@ -87,6 +88,12 @@ export default function CreateListingPage() {
               <div>
                 <label className="block text-base font-bold text-gray-800 mb-1.5">所在地</label>
                 <input type="text" value={form.location} onChange={e => set('location', e.target.value)} placeholder="例：長野県松本市" className={inputClass} />
+              </div>
+              <div>
+                <label className="block text-base font-bold text-gray-800 mb-1.5">
+                  メールアドレス <span className="text-red-500">*</span>
+                </label>
+                <input type="email" required value={form.email} onChange={e => set('email', e.target.value)} placeholder="例：farm@example.com" className={inputClass} />
               </div>
             </div>
           </section>

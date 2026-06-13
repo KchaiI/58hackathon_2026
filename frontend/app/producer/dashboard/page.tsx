@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
@@ -34,7 +34,7 @@ function getStatus(listing: Listing): { label: string; cls: string } {
     const days = Math.ceil((new Date(listing.harvest_date).getTime() - Date.now()) / 86400000)
     if (days <= 30) return { label: '収穫間近', cls: 'bg-[#e8dcc5] text-[#7a5020]' }
   }
-  return { label: '育成中', cls: 'bg-[#d4e6c3] text-[#2a5c2a]' }
+  return { label: '育成中', cls: 'bg-[#d4e0f0] text-[#1a3a5c]' }
 }
 
 function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: () => void }) {
@@ -95,7 +95,7 @@ function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: 
     return (
       <div className="mt-4 pt-4 border-t border-[#f0ede6] text-center py-6">
         <p className="text-2xl mb-2">✅</p>
-        <p className="text-sm text-[#2a5c2a] font-medium">投稿しました</p>
+        <p className="text-sm text-[#1a3a5c] font-medium">投稿しました</p>
         <button onClick={onClose} className="mt-3 text-xs text-[#9a9080] underline">閉じる</button>
       </div>
     )
@@ -107,7 +107,7 @@ function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: 
 
       <div
         onClick={() => fileRef.current?.click()}
-        className="relative w-full aspect-video rounded-xl bg-[#f2f7f0] border-2 border-dashed border-[#b4d4a4] flex items-center justify-center cursor-pointer hover:bg-[#e8f3e4] transition overflow-hidden"
+        className="relative w-full aspect-video rounded-xl bg-[#f0f4f8] border-2 border-dashed border-[#a0b8d4] flex items-center justify-center cursor-pointer hover:bg-[#eaf0f7] transition overflow-hidden"
       >
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -132,7 +132,7 @@ function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: 
         onChange={(e) => setNote(e.target.value)}
         placeholder="コメント（任意）　例：葉が大きく育ってきました！"
         rows={2}
-        className="w-full bg-[#f2f7f0] rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3a7a30] resize-none"
+        className="w-full bg-[#f0f4f8] rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1a3a5c] resize-none"
       />
 
       {error && <p className="text-xs text-red-500">{error}</p>}
@@ -141,7 +141,7 @@ function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: 
         <button
           type="submit"
           disabled={uploading}
-          className="flex-1 bg-[#2a5c25] text-white py-2 rounded-xl text-sm font-medium hover:bg-[#1e4a1a] disabled:opacity-50 transition"
+          className="flex-1 bg-[#1a3a5c] text-white py-2 rounded-xl text-sm font-medium hover:bg-[#0f2540] disabled:opacity-50 transition"
         >
           {uploading ? 'アップロード中...' : '投稿する'}
         </button>
@@ -158,75 +158,97 @@ function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: 
 }
 
 export default function ProducerDashboard() {
+  const [email, setEmail] = useState('demo2@example.com')
+  const [submitted, setSubmitted] = useState(false)
   const [producers, setProducers] = useState<Producer[]>([])
-  const [selectedId, setSelectedId] = useState<string>('')
   const [listings, setListings] = useState<Listing[]>([])
-  const [loadingListings, setLoadingListings] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [openFormId, setOpenFormId] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetch('/api/producers')
-      .then(res => res.json())
-      .then(data => { if (data) setProducers(data) })
-  }, [])
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    const res = await fetch(`/api/producers?email=${encodeURIComponent(email)}`)
+    const data = await res.json()
+    setProducers(Array.isArray(data) ? data : [])
+    if (data.length > 0) {
+      const listingsRes = await fetch(`/api/listings?producer_id=${data[0].user_id}`)
+      const listingsData = await listingsRes.json()
+      setListings(listingsData ?? [])
+    } else {
+      setListings([])
+    }
+    setSubmitted(true)
+    setLoading(false)
+  }
 
-  useEffect(() => {
-    if (!selectedId) { setListings([]); return }
-    setLoadingListings(true)
-    fetch(`/api/listings?producer_id=${selectedId}`)
-      .then(res => res.json())
-      .then(data => { setListings(data ?? []); setLoadingListings(false) })
-  }, [selectedId])
-
-  const selectedProducer = producers.find(p => p.user_id === selectedId)
+  const selectedProducer = producers[0] ?? null
   const totalOwners = listings.reduce((sum, l) => sum + (l.total_slots - l.available_slots), 0)
   const totalRevenue = listings.reduce((sum, l) => sum + l.price * (l.total_slots - l.available_slots), 0)
 
+  if (!submitted) {
+    return (
+      <main className="w-full px-12 py-8">
+        <div className="max-w-md mx-auto mt-20">
+          <h1 className="text-2xl font-bold text-[#1a1a1a] mb-2">生産者ダッシュボード</h1>
+          <p className="text-[#9a9080] text-sm mb-8">登録したメールアドレスで確認できます</p>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="email" required value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="メールアドレスを入力"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a3a5c] transition"
+            />
+            <button
+              type="submit" disabled={loading}
+              className="w-full bg-[#1a3a5c] text-white py-3 rounded-xl font-medium hover:bg-[#0f2540] disabled:opacity-50 transition"
+            >
+              {loading ? '検索中...' : '確認する'}
+            </button>
+          </form>
+        </div>
+      </main>
+    )
+  }
+
+  if (!selectedProducer) {
+    return (
+      <main className="w-full px-12 py-8">
+        <div className="text-center py-20 text-[#9a9080]">
+          <p className="text-5xl mb-4">🌱</p>
+          <p>生産者が見つかりませんでした</p>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="w-full px-12 py-8">
-<div className="flex justify-between items-start mb-6">
+      <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#1a1a1a]">生産者ダッシュボード</h1>
-          <p className="text-[#9a9080] mt-1 text-sm">自分の枠一覧と支援者数を確認できます</p>
+          <p className="text-[#9a9080] mt-1 text-sm">{selectedProducer.name}{selectedProducer.location ? `・${selectedProducer.location}` : ''}</p>
         </div>
-      </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-[#5a5040] mb-2">生産者を選択</label>
-        <select
-          value={selectedId}
-          onChange={e => setSelectedId(e.target.value)}
-          className="w-full bg-[#e8e4db] border-0 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1a3a5c] text-[#1a1a1a] text-sm appearance-none cursor-pointer"
-        >
-          <option value="">
-            {producers.length === 0 ? '読み込み中...' : `-- 生産者を選んでください (${producers.length}件) --`}
-          </option>
-          {producers.map(p => (
-            <option key={p.user_id} value={p.user_id}>
-              {p.name}{p.location ? ` (${p.location})` : ''}
-            </option>
-          ))}
-        </select>
       </div>
 
       {selectedProducer && (
         <div className="border border-[#e0dbd2] rounded-2xl p-6">
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <div className="bg-[#d4dfc8] rounded-2xl p-4">
+            <div className="bg-[#d4e0f0] rounded-2xl p-4">
               <p className="text-xs text-[#9a9080] mb-1">出品中の枠</p>
               <p className="text-3xl font-bold text-[#1a1a1a]">{listings.length}</p>
             </div>
-            <div className="bg-[#d4dfc8] rounded-2xl p-4">
+            <div className="bg-[#d4e0f0] rounded-2xl p-4">
               <p className="text-xs text-[#9a9080] mb-1">支援者総数</p>
               <p className="text-3xl font-bold text-[#1a1a1a]">{totalOwners}</p>
             </div>
-            <div className="bg-[#d4dfc8] rounded-2xl p-4">
+            <div className="bg-[#d4e0f0] rounded-2xl p-4">
               <p className="text-xs text-[#9a9080] mb-1">累計売上</p>
               <p className="text-xl font-bold text-[#1a1a1a] leading-tight mt-1">¥{totalRevenue.toLocaleString()}</p>
             </div>
           </div>
 
-          {loadingListings ? (
+          {loading ? (
             <p className="text-[#9a9080] text-center py-10 text-sm">読み込み中...</p>
           ) : listings.length === 0 ? (
             <div className="text-center py-10 text-[#9a9080]">
@@ -243,8 +265,8 @@ export default function ProducerDashboard() {
                 return (
                   <div key={listing.id} className="bg-white rounded-2xl p-5">
                     <div className="flex gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-[#dce8d0] flex items-center justify-center shrink-0">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2a5c2a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <div className="w-14 h-14 rounded-2xl bg-[#dde8f5] flex items-center justify-center shrink-0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a3a5c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M12 2a9 9 0 0 1 0 12" />
                           <path d="M12 14V22" />
                           <path d="M8 18c1.5-1 2.5-2.5 4-4" />
@@ -262,8 +284,8 @@ export default function ProducerDashboard() {
                           <div className="flex justify-between text-xs text-[#9a9080] mb-1">
                             <span>定植</span><span>収穫</span>
                           </div>
-                          <div className="bg-[#d4dfc8] rounded-full h-2">
-                            <div className="bg-[#2a5c2a] h-2 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                          <div className="bg-[#d4e0f0] rounded-full h-2">
+                            <div className="bg-[#1a3a5c] h-2 rounded-full transition-all" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                         <p className="text-xs text-[#9a9080]">
@@ -278,7 +300,7 @@ export default function ProducerDashboard() {
                     {!isOpen && (
                       <button
                         onClick={() => setOpenFormId(listing.id)}
-                        className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-[#b4d4a4] text-[#2a5c2a] text-sm hover:bg-[#f2f7f0] transition"
+                        className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-[#a0b8d4] text-[#1a3a5c] text-sm hover:bg-[#f0f4f8] transition"
                       >
                         <span>📷</span>
                         <span>成長記録を投稿する</span>
@@ -298,7 +320,7 @@ export default function ProducerDashboard() {
                         <ul className="space-y-1">
                           {owners.map((o, i) => (
                             <li key={i} className="flex items-center gap-2 text-sm">
-                              <span className="w-5 h-5 rounded-full bg-[#dce8d0] text-[#2a5c2a] text-xs flex items-center justify-center font-medium shrink-0">{i + 1}</span>
+                              <span className="w-5 h-5 rounded-full bg-[#dde8f5] text-[#1a3a5c] text-xs flex items-center justify-center font-medium shrink-0">{i + 1}</span>
                               <span className="font-medium text-[#1a1a1a]">{o.owner_name}</span>
                               <span className="text-[#9a9080] text-xs truncate">{o.owner_email}</span>
                             </li>
