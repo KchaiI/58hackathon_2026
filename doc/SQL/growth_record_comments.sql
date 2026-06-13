@@ -6,3 +6,5 @@ CREATE TABLE growth_record_comments (
   body text NOT NULL,
   created_at timestamp WITH TIME ZONE DEFAULT now()
 );
+
+ALTER TABLE growth_record_comments DISABLE ROW LEVEL SECURITY;

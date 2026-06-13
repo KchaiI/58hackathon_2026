@@ -5,3 +5,5 @@ CREATE TABLE growth_record_likes (
   created_at timestamp WITH TIME ZONE DEFAULT now(),
   UNIQUE (growth_record_id, user_identifier)
 );
+
+ALTER TABLE growth_record_likes DISABLE ROW LEVEL SECURITY;

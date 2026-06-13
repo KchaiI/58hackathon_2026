@@ -326,15 +326,27 @@ export default function MyListingDetailPage() {
           <p className="text-gray-400 text-sm">まだ成長記録がありません</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
-          {records.map((record) => (
-            <GrowthRecordCard
-              key={record.id}
-              record={record}
-              userIdentifier={userIdentifier}
-              userName={userName}
-            />
-          ))}
+        <div className="relative">
+          {/* vertical timeline line */}
+          <div className="absolute left-5 top-0 bottom-0 w-px bg-[#d4e6c3]" />
+          <div className="space-y-6">
+            {records.map((record) => (
+              <div key={record.id} className="flex gap-4">
+                {/* dot marker */}
+                <div className="relative shrink-0 w-10 flex justify-center">
+                  <div className="w-3 h-3 rounded-full bg-[#3a7a30] border-2 border-white shadow mt-4" />
+                </div>
+                {/* card */}
+                <div className="flex-1 pb-2">
+                  <GrowthRecordCard
+                    record={record}
+                    userIdentifier={userIdentifier}
+                    userName={userName}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </main>
