@@ -26,7 +26,7 @@ export default function NewListingPage() {
     e.preventDefault()
     setLoading(true)
 
-    const res = await fetch('/api/producers', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/producers/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),

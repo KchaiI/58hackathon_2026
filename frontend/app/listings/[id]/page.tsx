@@ -27,7 +27,7 @@ export default function ListingPage() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    fetch(`/api/listings/${id}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings/${id}`)
       .then(res => res.json())
       .then(data => setListing(data))
   }, [id])
@@ -37,7 +37,7 @@ export default function ListingPage() {
     if (!listing || listing.available_slots <= 0) return
     setLoading(true)
 
-    const res = await fetch('/api/ownerships', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ownerships/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ listing_id: listing.id, owner_name: name, owner_email: email }),

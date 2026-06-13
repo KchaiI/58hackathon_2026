@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { supabase } from '@/lib/supabase'
 
 type Listing = {
   id: string
@@ -16,11 +15,8 @@ type Listing = {
 export const revalidate = 0
 
 export default async function Home() {
-  const { data: listings } = await supabase
-    .from('listings')
-    .select('*, producers(name, location)')
-    .gt('available_slots', 0)
-    .order('created_at', { ascending: false })
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings/`, { cache: 'no-store' })
+  const listings: Listing[] = res.ok ? await res.json() : []
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
