@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
+from typing import cast, Any
 from app.database import supabase
 from app.schemas import OwnershipCreate
 from postgrest.exceptions import APIError
@@ -6,6 +7,15 @@ from typing import cast
 from app.models import ListingRow
 
 router = APIRouter()
+
+@router.get("/")
+def get_ownerships(email: str = Query(...)) -> list[Any]:
+    res = supabase.from_("ownerships") \
+        .select("*, listings(id, title, crop, image_url, harvest_date, created_at, producers(name, location))") \
+        .eq("owner_email", email) \
+        .order("created_at", desc=True) \
+        .execute()
+    return res.data or []
 
 @router.post("/", status_code=201)
 def create_ownership(body: OwnershipCreate):

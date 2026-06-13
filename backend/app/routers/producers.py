@@ -1,10 +1,18 @@
 from fastapi import APIRouter, HTTPException
-from typing import cast
+from typing import Any, cast
 from app.database import supabase
 from app.schemas import ListingCreate
 from app.models import ProducerRow, ListingRow
 
 router = APIRouter()
+
+@router.get("/")
+def get_producers() -> list[Any]:
+    res = supabase.from_("producers") \
+        .select("id, name, location") \
+        .order("created_at", desc=True) \
+        .execute()
+    return res.data or []
 
 @router.post("/", status_code=201)
 def create_producer_and_listing(body: ListingCreate):
