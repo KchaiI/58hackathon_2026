@@ -29,12 +29,20 @@ export default async function Home() {
           <h1 className="text-3xl font-bold">🌿 オーナー枠マーケット</h1>
           <p className="text-gray-500 mt-1">日本の農家・林業家のオーナーになろう</p>
         </div>
-        <Link
-          href="/producer/new"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-        >
-          枠を出品する
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/producer/dashboard"
+            className="border border-green-600 text-green-600 px-4 py-2 rounded-lg hover:bg-green-50"
+          >
+            生産者ダッシュボード
+          </Link>
+          <Link
+            href="/producer/new"
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            枠を出品する
+          </Link>
+        </div>
       </div>
 
       {listings && listings.length > 0 ? (
