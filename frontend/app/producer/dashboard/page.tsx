@@ -37,12 +37,13 @@ function getStatus(listing: Listing): { label: string; cls: string } {
   return { label: '育成中', cls: 'bg-[#d4e6c3] text-[#2a5c2a]' }
 }
 
-function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: () => void }) {
+function GrowthRecordForm({ listingId, crop, onClose }: { listingId: string; crop: string; onClose: () => void }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [note, setNote] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
 
@@ -51,6 +52,35 @@ function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: 
     if (!f) return
     setFile(f)
     setPreview(URL.createObjectURL(f))
+  }
+
+  async function handleGenerateNote() {
+    if (!file) return
+    setGenerating(true)
+    setError(null)
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const result = reader.result as string
+          resolve(result.split(',')[1])
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const res = await fetch('/api/ai/generate-note', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_base64: base64, mime_type: file.type, crop }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? 'AI生成に失敗しました'); return }
+      setNote(data.note)
+    } catch {
+      setError('AI生成に失敗しました')
+    } finally {
+      setGenerating(false)
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -127,13 +157,32 @@ function GrowthRecordForm({ listingId, onClose }: { listingId: string; onClose: 
         />
       </div>
 
-      <textarea
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="コメント（任意）　例：葉が大きく育ってきました！"
-        rows={2}
-        className="w-full bg-[#f2f7f0] rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3a7a30] resize-none"
-      />
+      <div className="relative">
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="コメント（任意）　例：葉が大きく育ってきました！"
+          rows={3}
+          className="w-full bg-[#f2f7f0] rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3a7a30] resize-none"
+        />
+        {file && (
+          <button
+            type="button"
+            onClick={handleGenerateNote}
+            disabled={generating}
+            className="absolute bottom-2 right-2 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#e8f3e4] text-[#2a5c25] text-xs font-medium hover:bg-[#d4e9cc] disabled:opacity-50 transition"
+          >
+            {generating ? (
+              <>
+                <span className="inline-block w-3 h-3 border-2 border-[#2a5c25] border-t-transparent rounded-full animate-spin" />
+                生成中…
+              </>
+            ) : (
+              <>✨ AIで生成</>
+            )}
+          </button>
+        )}
+      </div>
 
       {error && <p className="text-xs text-red-500">{error}</p>}
 
@@ -288,6 +337,7 @@ export default function ProducerDashboard() {
                     {isOpen && (
                       <GrowthRecordForm
                         listingId={listing.id}
+                        crop={listing.crop}
                         onClose={() => setOpenFormId(null)}
                       />
                     )}
