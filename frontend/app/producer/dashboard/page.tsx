@@ -76,39 +76,27 @@ export default function ProducerDashboard() {
   const totalRevenue = listings.reduce((sum, l) => sum + l.price * (l.total_slots - l.available_slots), 0)
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8">
-      <button onClick={() => router.push('/')} className="text-gray-400 hover:text-gray-600 mb-6 block">
+    <main className="w-full px-12 py-8">
+      <button onClick={() => router.push('/')} className="flex items-center gap-1 text-sm text-white bg-[#2a5c25] px-4 py-2 rounded-lg hover:bg-[#1e4a1a] transition mb-8">
         {'←'} 一覧に戻る
       </button>
 
-      <div className="flex justify-between items-center mb-8">
+      {/* ヘッダー */}
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-2xl font-bold">生産者ダッシュボード</h1>
-          <p className="text-gray-500 mt-1 text-sm">自分の枠一覧とオーナー数を確認できます</p>
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">生産者ダッシュボード</h1>
+          <p className="text-[#9a9080] mt-1 text-sm">自分の枠一覧とオーナー数を確認できます</p>
         </div>
         <Link
           href="/producer/create"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
+          className="bg-[#2a5c25] text-white px-4 py-2 rounded-xl hover:bg-[#1e4a1a] text-sm font-medium transition"
         >
-          ← 一覧に戻る
-        </button>
+          新しい枠を出品する
+        </Link>
+      </div>
 
-        {/* ヘッダー */}
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-[#1a1a1a]">生産者ダッシュボード</h1>
-            <p className="text-[#9a9080] mt-1 text-sm">自分の枠一覧とオーナー数を確認できます</p>
-          </div>
-          <Link
-            href="/producer/new"
-            className="bg-[#2a5c2a] text-white px-4 py-2 rounded-xl hover:bg-[#1f4a1f] text-sm font-medium transition-colors"
-          >
-            新しい枠を出品する
-          </Link>
-        </div>
-
-        {/* 生産者セレクター */}
-        <div className="mb-6">
+      {/* 生産者セレクター */}
+      <div className="mb-6">
           <label className="block text-sm font-medium text-[#5a5040] mb-2">生産者を選択</label>
           <select
             value={selectedId}
@@ -243,7 +231,6 @@ export default function ProducerDashboard() {
             )}
           </div>
         )}
-      </div>
     </main>
   )
 }
