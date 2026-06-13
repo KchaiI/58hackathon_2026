@@ -56,12 +56,20 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
             日本の農家・林業家のオーナーになろう
           </p>
         </div>
-        <Link
-          href="/producer/new"
-          className="bg-[#2a5c25] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#1e4a1a] transition"
-        >
-          枠を出品する
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/producer/dashboard"
+            className="border border-[#2a5c25] text-[#2a5c25] px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-green-50 transition"
+          >
+            生産者ダッシュボード
+          </Link>
+          <Link
+            href="/producer/new"
+            className="bg-[#2a5c25] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#1e4a1a] transition"
+          >
+            枠を出品する
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
