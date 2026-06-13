@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     .from('growth_records')
     .select('*')
     .eq('listing_id', listingId)
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: false })
 
   return Response.json(data ?? [])
 }
