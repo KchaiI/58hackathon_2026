@@ -68,7 +68,7 @@ export default function Sidebar() {
             <button
               key={r}
               onClick={() => setRole(r)}
-              className={`flex-1 py-2 text-sm font-medium transition ${
+              className={`flex-1 py-2 text-base font-medium transition ${
                 role === r
                   ? theme[r].toggle
                   : 'bg-white text-[#5a5040] hover:bg-[#f5f3f0]'
@@ -86,7 +86,7 @@ export default function Sidebar() {
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition ${
                 pathname === href ? t.active : 'text-[#3a3530] hover:bg-[#f5f3f0]'
               }`}
             >

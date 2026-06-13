@@ -125,7 +125,7 @@ function GrowthRecordForm({ listingId, crop, onClose }: { listingId: string; cro
     return (
       <div className="mt-4 pt-4 border-t border-[#f0ede6] text-center py-6">
         <p className="text-2xl mb-2">✅</p>
-        <p className="text-sm text-[#1a3a5c] font-medium">投稿しました</p>
+        <p className="text-base text-[#1a3a5c] font-medium">投稿しました</p>
         <button onClick={onClose} className="mt-3 text-xs text-[#9a9080] underline">閉じる</button>
       </div>
     )
@@ -133,19 +133,19 @@ function GrowthRecordForm({ listingId, crop, onClose }: { listingId: string; cro
 
   return (
     <form onSubmit={handleSubmit} className="mt-4 pt-4 border-t border-[#f0ede6] space-y-3">
-      <p className="text-xs font-medium text-[#5a5040]">成長記録を投稿</p>
+      <p className="text-base font-bold text-[#5a5040]">成長記録を投稿</p>
 
       <div
         onClick={() => fileRef.current?.click()}
-        className="relative w-full aspect-video rounded-xl bg-[#f0f4f8] border-2 border-dashed border-[#a0b8d4] flex items-center justify-center cursor-pointer hover:bg-[#eaf0f7] transition overflow-hidden"
+        className="relative w-full h-80 rounded-xl bg-[#f0f4f8] border-2 border-dashed border-[#a0b8d4] flex items-center justify-center cursor-pointer hover:bg-[#eaf0f7] transition overflow-hidden"
       >
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="preview" className="w-full h-full object-cover" />
         ) : (
           <div className="text-center">
-            <p className="text-3xl mb-1">📷</p>
-            <p className="text-xs text-[#9a9080]">タップして画像を選択</p>
+            <p className="text-6xl mb-2">📷</p>
+            <p className="text-xl text-[#9a9080]">タップして画像を選択</p>
           </div>
         )}
         <input
@@ -213,17 +213,22 @@ export default function ProducerDashboard() {
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(false)
   const [openFormId, setOpenFormId] = useState<string | null>(null)
+  const [openOwnersId, setOpenOwnersId] = useState<string | null>(null)
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     const res = await fetch(`/api/producers?email=${encodeURIComponent(email)}`)
     const data = await res.json()
-    setProducers(Array.isArray(data) ? data : [])
-    if (data.length > 0) {
-      const listingsRes = await fetch(`/api/listings?producer_id=${data[0].user_id}`)
-      const listingsData = await listingsRes.json()
-      setListings(listingsData ?? [])
+    const producers = Array.isArray(data) ? data : []
+    setProducers(producers)
+    if (producers.length > 0) {
+      const all = await Promise.all(
+        producers.map((p: Producer) =>
+          fetch(`/api/listings?producer_id=${p.user_id}`).then(r => r.json())
+        )
+      )
+      setListings(all.flat().filter(Boolean))
     } else {
       setListings([])
     }
@@ -275,8 +280,7 @@ export default function ProducerDashboard() {
     <main className="w-full px-12 py-8">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1a1a1a]">生産者ダッシュボード</h1>
-          <p className="text-[#9a9080] mt-1 text-sm">{selectedProducer.name}{selectedProducer.location ? `・${selectedProducer.location}` : ''}</p>
+          <h1 className="text-4xl font-bold text-[#1a1a1a]">生産者ダッシュボード</h1>
         </div>
       </div>
 
@@ -284,15 +288,15 @@ export default function ProducerDashboard() {
         <div className="border border-[#e0dbd2] rounded-2xl p-6">
           <div className="grid grid-cols-3 gap-3 mb-6">
             <div className="bg-[#d4e0f0] rounded-2xl p-4">
-              <p className="text-xs text-[#9a9080] mb-1">出品中の品目数</p>
+              <p className="text-base font-bold text-[#1a3a5c] mb-1">出品中の品目数</p>
               <p className="text-3xl font-bold text-[#1a1a1a]">{listings.length}</p>
             </div>
             <div className="bg-[#d4e0f0] rounded-2xl p-4">
-              <p className="text-xs text-[#9a9080] mb-1">支援者総数</p>
+              <p className="text-base font-bold text-[#1a3a5c] mb-1">支援者総数</p>
               <p className="text-3xl font-bold text-[#1a1a1a]">{totalOwners}</p>
             </div>
             <div className="bg-[#d4e0f0] rounded-2xl p-4">
-              <p className="text-xs text-[#9a9080] mb-1">累計売上</p>
+              <p className="text-base font-bold text-[#1a3a5c] mb-1">累計売上</p>
               <p className="text-xl font-bold text-[#1a1a1a] leading-tight mt-1">¥{totalRevenue.toLocaleString()}</p>
             </div>
           </div>
@@ -301,10 +305,10 @@ export default function ProducerDashboard() {
             <p className="text-[#9a9080] text-center py-10 text-sm">読み込み中...</p>
           ) : listings.length === 0 ? (
             <div className="text-center py-10 text-[#9a9080]">
-              <p className="text-sm">まだ出品がありません</p>
+              <p className="text-base">まだ出品がありません</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-4">
               {listings.map(listing => {
                 const sold = listing.total_slots - listing.available_slots
                 const pct = listing.total_slots > 0 ? Math.round((sold / listing.total_slots) * 100) : 0
@@ -329,20 +333,20 @@ export default function ProducerDashboard() {
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-3">
                           <Link href={`/listings/${listing.id}`} className="min-w-0 flex-1 mr-3">
-                            <h2 className="text-base font-semibold text-[#1a1a1a] hover:underline leading-snug">{listing.title}</h2>
-                            <p className="text-xs text-[#9a9080] mt-0.5">{listing.crop}</p>
+                            <h2 className="text-xl font-bold text-[#1a1a1a] hover:underline leading-snug">{listing.title}</h2>
+                            <p className="text-sm text-[#9a9080] mt-0.5">{listing.crop}</p>
                           </Link>
-                          <span className={`text-xs px-3 py-1 rounded-full font-medium shrink-0 ${status.cls}`}>{status.label}</span>
+                          <span className={`text-sm px-3 py-1 rounded-full font-medium shrink-0 ${status.cls}`}>{status.label}</span>
                         </div>
                         <div className="mb-2">
-                          <div className="flex justify-between text-xs text-[#9a9080] mb-1">
+                          <div className="flex justify-between text-sm text-[#9a9080] mb-1">
                             <span>定植</span><span>収穫</span>
                           </div>
                           <div className="bg-[#d4e0f0] rounded-full h-2">
                             <div className="bg-[#1a3a5c] h-2 rounded-full transition-all" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
-                        <p className="text-xs text-[#9a9080]">
+                        <p className="text-base text-[#9a9080]">
                           {sold} / {listing.total_slots} 枠 ({pct}%)
                           {listing.harvest_date && ` · 収穫予定: ${listing.harvest_date}`}
                           {` · ¥${listing.price.toLocaleString()}/枠`}
@@ -354,7 +358,7 @@ export default function ProducerDashboard() {
                     {!isOpen && (
                       <button
                         onClick={() => setOpenFormId(listing.id)}
-                        className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-[#a0b8d4] text-[#1a3a5c] text-sm hover:bg-[#f0f4f8] transition"
+                        className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-[#a0b8d4] text-[#1a3a5c] text-base hover:bg-[#f0f4f8] transition"
                       >
                         <span>📷</span>
                         <span>成長記録を投稿する</span>
@@ -371,16 +375,24 @@ export default function ProducerDashboard() {
 
                     {owners.length > 0 && !isOpen && (
                       <div className="mt-4 pt-4 border-t border-[#f0ede6]">
-                        <p className="text-xs font-medium text-[#9a9080] mb-2">支援者 ({owners.length}人)</p>
+                        <button
+                          onClick={() => setOpenOwnersId(openOwnersId === listing.id ? null : listing.id)}
+                          className="flex items-center gap-1 text-base font-medium text-[#9a9080] hover:text-[#1a3a5c] transition mb-2"
+                        >
+                          <span>{openOwnersId === listing.id ? '▼' : '▶'}</span>
+                          <span>支援者 ({owners.length}人)</span>
+                        </button>
+                        {openOwnersId === listing.id && (
                         <ul className="space-y-1">
                           {owners.map((o, i) => (
                             <li key={i} className="flex items-center gap-2 text-sm">
                               <span className="w-5 h-5 rounded-full bg-[#dde8f5] text-[#1a3a5c] text-xs flex items-center justify-center font-medium shrink-0">{i + 1}</span>
                               <span className="font-medium text-[#1a1a1a]">{o.owner_name}</span>
-                              <span className="text-[#9a9080] text-xs truncate">{o.owner_email}</span>
+                              <span className="text-[#9a9080] text-sm truncate">{o.owner_email}</span>
                             </li>
                           ))}
                         </ul>
+                        )}
                       </div>
                     )}
                   </div>
