@@ -3,6 +3,17 @@ import { supabase } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   const email = request.nextUrl.searchParams.get('email')
+  const listingId = request.nextUrl.searchParams.get('listing_id')
+
+  if (listingId) {
+    const { data } = await supabase
+      .from('ownerships')
+      .select('id, owner_name, slots')
+      .eq('listing_id', listingId)
+      .order('created_at', { ascending: true })
+    return Response.json(data ?? [])
+  }
+
   if (!email) return Response.json([], { status: 400 })
 
   const { data } = await supabase
