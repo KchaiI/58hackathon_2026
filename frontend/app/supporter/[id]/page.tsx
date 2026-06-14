@@ -77,6 +77,8 @@ function GrowthRecordCard({
   const [commentBody, setCommentBody] = useState("");
   const [posting, setPosting] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams({ user_identifier: userIdentifier });
@@ -181,7 +183,95 @@ function GrowthRecordCard({
             </svg>
             <span>{comments.length > 0 ? comments.length : "コメント"}</span>
           </button>
+
+          {/* Share button */}
+          <button
+            onClick={() => setShowShare(true)}
+            className="ml-auto text-gray-400 hover:text-gray-600 transition"
+            title="共有"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+          </button>
         </div>
+
+        {/* Share modal */}
+        {showShare && (
+          <div
+            className="fixed inset-0 z-50 flex items-end justify-center"
+            onClick={() => setShowShare(false)}
+          >
+            <div className="absolute inset-0 bg-black/40" />
+            <div
+              className="relative w-full max-w-md bg-white rounded-t-3xl px-6 pt-3 pb-6"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-8 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
+              <p className="text-xs font-semibold text-gray-400 mb-3 text-center tracking-wide uppercase">シェアする</p>
+              <div className="flex justify-between gap-2">
+                {/* X */}
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex flex-col items-center gap-2 py-2"
+                  onClick={() => setShowShare(false)}
+                >
+                  <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </div>
+                  <span className="text-xs text-gray-600">X</span>
+                </a>
+
+                {/* Instagram */}
+                <button
+                  className="flex-1 flex flex-col items-center gap-2 py-2"
+                  onClick={() => setShowShare(false)}
+                >
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'radial-gradient(circle at 30% 110%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%)' }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" className="w-7 h-7">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <circle cx="12" cy="12" r="4" />
+                      <circle cx="17.5" cy="6.5" r="1" fill="white" stroke="none" />
+                    </svg>
+                  </div>
+                  <span className="text-xs text-gray-600">Instagram</span>
+                </button>
+
+                {/* URL copy */}
+                <button
+                  className="flex-1 flex flex-col items-center gap-2 py-2"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href)
+                    setCopied(true)
+                    setTimeout(() => { setCopied(false); setShowShare(false) }, 1200)
+                  }}
+                >
+                  <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
+                    {copied ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#3a7a30" strokeWidth="2.2" className="w-7 h-7">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.8" className="w-7 h-7">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-xs text-gray-600">{copied ? 'コピー済み' : 'URLコピー'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Comments section */}
         {showComments && (
