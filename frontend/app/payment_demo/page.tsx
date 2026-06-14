@@ -30,7 +30,7 @@ function PaymentForm() {
       }),
     });
 
-    router.push("/my");
+    router.push("/supporter");
   }
 
   if (status !== "idle") {

@@ -210,7 +210,7 @@ export default function MyPage() {
           const imageUrl = latestImages[listing.id] ?? listing.image_url;
 
           return (
-            <Link key={o.id} href={`/my/${listing.id}`}>
+            <Link key={o.id} href={`/supporter/${listing.id}`}>
               <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition cursor-pointer">
                 {/* Card image */}
                 <div className="relative w-full aspect-4/3">

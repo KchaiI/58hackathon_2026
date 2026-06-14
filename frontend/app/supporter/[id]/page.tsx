@@ -266,7 +266,7 @@ export default function MyListingDetailPage() {
   return (
     <main className="w-full px-12 py-8 max-w-2xl">
       <Link
-        href="/my"
+        href="/supporter"
         className="text-gray-400 hover:text-gray-600 text-sm mb-6 block"
       >
         {"←"} マイページに戻る

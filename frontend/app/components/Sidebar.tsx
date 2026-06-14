@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 
 const ownerLinks = [
   { label: '支援者枠マーケット', href: '/listings', icon: '🌱' },
-  { label: 'マイページ', href: '/my', icon: '👤' },
+  { label: 'マイページ', href: '/supporter', icon: '👤' },
 ]
 
 const producerLinks = [
