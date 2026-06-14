@@ -115,7 +115,7 @@ useEffect(() => {
                 <input
                   type="text" required value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#3a7a30] transition"
+                  className="w-full border border-black rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:border-[#3a7a30] transition"
                 />
               </div>
               <div>
@@ -123,7 +123,7 @@ useEffect(() => {
                 <input
                   type="email" required value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#3a7a30] transition"
+                  className="w-full border border-black rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:border-[#3a7a30] transition"
                 />
               </div>
               <button

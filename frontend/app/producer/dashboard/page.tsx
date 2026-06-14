@@ -163,7 +163,7 @@ function GrowthRecordForm({ listingId, crop, onClose }: { listingId: string; cro
           onChange={(e) => setNote(e.target.value)}
           placeholder="コメント（任意）　例：葉が大きく育ってきました！"
           rows={3}
-          className="w-full bg-[#f0f4f8] rounded-xl px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1a3a5c] resize-none"
+          className="w-full bg-[#f0f4f8] border border-black rounded-xl px-4 py-2.5 text-sm text-black placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#1a3a5c] resize-none"
         />
         {file && (
           <button
@@ -251,7 +251,7 @@ export default function ProducerDashboard() {
               type="email" required value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="メールアドレスを入力"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1a3a5c] transition"
+              className="w-full border border-black rounded-xl px-4 py-3 text-sm text-black focus:outline-none focus:border-[#1a3a5c] transition"
             />
             <button
               type="submit" disabled={loading}

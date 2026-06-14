@@ -142,7 +142,7 @@ export default function MyPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="メールアドレスを入力"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#3a7a30] transition"
+              className="w-full border border-black rounded-xl px-4 py-3 text-sm text-black focus:outline-none focus:border-[#3a7a30] transition"
             />
             <button
               type="submit"

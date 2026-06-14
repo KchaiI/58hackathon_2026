@@ -1,37 +1,38 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import type { Listing } from '../page'
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import type { Listing } from "../page";
 
 function monthsUntil(dateStr: string | null): number | null {
-  if (!dateStr) return null
-  const now = new Date()
-  const harvest = new Date(dateStr)
+  if (!dateStr) return null;
+  const now = new Date();
+  const harvest = new Date(dateStr);
   const diff =
     (harvest.getFullYear() - now.getFullYear()) * 12 +
-    (harvest.getMonth() - now.getMonth())
-  return diff > 0 ? diff : null
+    (harvest.getMonth() - now.getMonth());
+  return diff > 0 ? diff : null;
 }
 
 export default function ListingGrid({ listings }: { listings: Listing[] }) {
-  const [activeCategory, setActiveCategory] = useState('すべて')
-  const [query, setQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState("すべて");
+  const [query, setQuery] = useState("");
 
-  const crops = ['すべて', ...Array.from(new Set(listings.map((l) => l.crop)))]
+  const crops = ["すべて", ...Array.from(new Set(listings.map((l) => l.crop)))];
 
   const filtered = listings.filter((l) => {
-    const matchCategory = activeCategory === 'すべて' || l.crop === activeCategory
-    const q = query.trim().toLowerCase()
+    const matchCategory =
+      activeCategory === "すべて" || l.crop === activeCategory;
+    const q = query.trim().toLowerCase();
     const matchQuery =
       !q ||
       l.title.toLowerCase().includes(q) ||
       l.crop.toLowerCase().includes(q) ||
       l.producers?.location?.toLowerCase().includes(q) ||
-      l.producers?.name?.toLowerCase().includes(q)
-    return matchCategory && matchQuery
-  })
+      l.producers?.name?.toLowerCase().includes(q);
+    return matchCategory && matchQuery;
+  });
 
   return (
     <div>
@@ -75,7 +76,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
           placeholder="作物名・産地・農園名で検索"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#3a7a30] transition"
+          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm text-black outline-none focus:border-[#3a7a30] transition"
         />
       </div>
 
@@ -88,8 +89,8 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
               onClick={() => setActiveCategory(crop)}
               className={`px-4 py-1.5 rounded-full text-sm border transition ${
                 activeCategory === crop
-                  ? 'border-gray-800 text-gray-900 font-medium bg-white'
-                  : 'border-gray-200 text-gray-500 bg-white hover:border-gray-400'
+                  ? "border-gray-800 text-gray-900 font-medium bg-white"
+                  : "border-gray-200 text-gray-500 bg-white hover:border-gray-400"
               }`}
             >
               {crop}
@@ -112,11 +113,16 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
 
       {/* Grid */}
       {filtered.length > 0 ? (
-        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
+        <div
+          className="grid gap-4"
+          style={{
+            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+          }}
+        >
           {filtered.map((listing, index) => {
-            const used = listing.total_slots - listing.available_slots
-            const pct = Math.round((used / listing.total_slots) * 100)
-            const months = monthsUntil(listing.harvest_date)
+            const used = listing.total_slots - listing.available_slots;
+            const pct = Math.round((used / listing.total_slots) * 100);
+            const months = monthsUntil(listing.harvest_date);
 
             return (
               <Link key={listing.id} href={`/listings/${listing.id}`}>
@@ -124,7 +130,10 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
                   {/* Image */}
                   <div className="relative w-full h-44 bg-[#e4eee0] flex items-center justify-center">
                     <Image
-                      src={listing.image_url || `https://picsum.photos/seed/${listing.id}/600/400`}
+                      src={
+                        listing.image_url ||
+                        `https://picsum.photos/seed/${listing.id}/600/400`
+                      }
                       alt={listing.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 340px"
@@ -166,7 +175,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
                   </div>
                 </div>
               </Link>
-            )
+            );
           })}
         </div>
       ) : (
@@ -182,5 +191,5 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
         </div>
       )}
     </div>
-  )
+  );
 }

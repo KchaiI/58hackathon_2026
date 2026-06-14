@@ -63,7 +63,7 @@ export default function CreateListingPage() {
     else setLoading(false)
   }
 
-  const inputClass = 'w-full bg-[#f0f4f8] rounded-xl px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none border border-black transition'
+  const inputClass = 'w-full bg-[#f0f4f8] rounded-xl px-4 py-3 text-base text-black placeholder:text-gray-400 focus:outline-none border border-black transition'
 
   return (
     <main className="w-full px-12 py-8">

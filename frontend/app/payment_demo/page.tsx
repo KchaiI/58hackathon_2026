@@ -130,9 +130,10 @@ function PaymentForm() {
               style={{
                 width: "100%",
                 padding: 12,
-                border: "1px solid #ccc",
+                border: "1px solid #000",
                 borderRadius: 8,
                 fontSize: 16,
+                color: "#000",
               }}
             />
           </div>
@@ -154,9 +155,10 @@ function PaymentForm() {
               style={{
                 width: "100%",
                 padding: 12,
-                border: "1px solid #ccc",
+                border: "1px solid #000",
                 borderRadius: 8,
                 fontSize: 16,
+                color: "#000",
               }}
             />
           </div>
@@ -179,9 +181,10 @@ function PaymentForm() {
                 style={{
                   width: "100%",
                   padding: 12,
-                  border: "1px solid #ccc",
+                  border: "1px solid #000",
                   borderRadius: 8,
                   fontSize: 16,
+                  color: "#000",
                 }}
               />
             </div>
@@ -203,9 +206,10 @@ function PaymentForm() {
                 style={{
                   width: "100%",
                   padding: 12,
-                  border: "1px solid #ccc",
+                  border: "1px solid #000",
                   borderRadius: 8,
                   fontSize: 16,
+                  color: "#000",
                 }}
               />
             </div>

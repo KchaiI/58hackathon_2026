@@ -210,7 +210,7 @@ function GrowthRecordCard({
                   value={commentBody}
                   onChange={(e) => setCommentBody(e.target.value)}
                   placeholder="コメントを追加..."
-                  className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-[#3a7a30] transition"
+                  className="flex-1 text-sm text-black border border-black rounded-lg px-3 py-2 focus:outline-none focus:border-[#3a7a30] transition"
                 />
                 <button
                   type="submit"
