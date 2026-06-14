@@ -241,7 +241,8 @@ export default function MyListingDetailPage() {
   useEffect(() => {
     setUserIdentifier(sessionStorage.getItem("user_email") ?? "");
     setUserName(sessionStorage.getItem("user_name") ?? "");
-  }, []);
+    if (id) localStorage.setItem(`last_seen_${id}`, String(Date.now()));
+  }, [id]);
 
   useEffect(() => {
     fetch(`/api/listings/${id}`)
