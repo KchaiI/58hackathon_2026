@@ -231,7 +231,10 @@ function GrowthRecordCard({
                 </a>
 
                 {/* Instagram */}
-                <button
+                <a
+                  href="instagram://share"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex-1 flex flex-col items-center gap-2 py-2"
                   onClick={() => setShowShare(false)}
                 >
@@ -243,7 +246,7 @@ function GrowthRecordCard({
                     </svg>
                   </div>
                   <span className="text-xs text-gray-600">Instagram</span>
-                </button>
+                </a>
 
                 {/* URL copy */}
                 <button
