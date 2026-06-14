@@ -244,14 +244,14 @@ export default function ProducerDashboard() {
     return (
       <main className="w-full px-12 py-8">
         <div className="max-w-md mx-auto mt-20">
-          <h1 className="text-2xl font-bold text-[#1a1a1a] mb-2">生産者ダッシュボード</h1>
-          <p className="text-[#9a9080] text-sm mb-8">登録したメールアドレスで確認できます</p>
+          <h1 className="text-4xl font-bold text-[#1a1a1a] mb-2">生産者ダッシュボード</h1>
+          <p className="text-[#9a9080] text-xl mb-8">登録したメールアドレスで確認できます</p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="email" required value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="メールアドレスを入力"
-              className="w-full border border-black rounded-xl px-4 py-3 text-sm text-black focus:outline-none focus:border-[#1a3a5c] transition"
+              className="w-full border border-black rounded-xl px-4 py-4 text-xl text-black focus:outline-none focus:border-[#1a3a5c] transition"
             />
             <button
               type="submit" disabled={loading}

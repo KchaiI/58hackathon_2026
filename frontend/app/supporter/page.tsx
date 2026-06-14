@@ -131,8 +131,8 @@ export default function MyPage() {
     return (
       <main className="w-full px-12 py-8">
         <div className="max-w-md mx-auto mt-20">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">マイページ</h1>
-          <p className="text-gray-500 text-sm mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">マイページ</h1>
+          <p className="text-gray-500 text-xl mb-8">
             登録したメールアドレスで所有枠を確認できます
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -142,7 +142,7 @@ export default function MyPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="メールアドレスを入力"
-              className="w-full border border-black rounded-xl px-4 py-3 text-sm text-black focus:outline-none focus:border-[#3a7a30] transition"
+              className="w-full border border-black rounded-xl px-4 py-4 text-xl text-black focus:outline-none focus:border-[#3a7a30] transition"
             />
             <button
               type="submit"
