@@ -232,14 +232,14 @@ export default function MyPage() {
 
                 {/* Card body */}
                 <div className="p-4">
-                  <p className="font-semibold text-gray-900 text-sm leading-snug">
+                  <p className="font-semibold text-gray-900 text-base leading-snug">
                     {listing.crop}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-sm text-gray-400 mt-0.5">
                     {listing.producers?.name}・{listing.producers?.location}
                   </p>
 
-                  <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+                  <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">
                     <span>定植</span>
                     <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                       <div className="h-full bg-[#3a7a30] rounded-full" style={{ width: `${pct}%` }} />
@@ -247,7 +247,7 @@ export default function MyPage() {
                     <span>収穫</span>
                   </div>
                   {timeText && (
-                    <p className="text-xs text-gray-400 mt-1.5">{timeText}</p>
+                    <p className="text-sm text-gray-400 mt-1.5">{timeText}</p>
                   )}
                 </div>
               </div>
