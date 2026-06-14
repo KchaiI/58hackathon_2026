@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Listing } from "../page";
@@ -47,6 +47,32 @@ function HarvestBar({ months }: { months: number }) {
 export default function ListingGrid({ listings }: { listings: Listing[] }) {
   const [activeCategory, setActiveCategory] = useState("すべて");
   const [query, setQuery] = useState("");
+  const [ownerRankings, setOwnerRankings] = useState<Record<string, { name: string; slots: number }[]>>({});
+
+  useEffect(() => {
+    if (!listings.length) return;
+    Promise.all(
+      listings.map((l) =>
+        fetch(`/api/ownerships?listing_id=${l.id}`)
+          .then((r) => r.json())
+          .then((data: { id: string; owner_name: string; slots: number }[]) => {
+            if (!Array.isArray(data)) return { id: l.id, ranking: [] };
+            const agg: Record<string, number> = {};
+            data.forEach((o) => { agg[o.owner_name] = (agg[o.owner_name] ?? 0) + (o.slots ?? 1); });
+            const ranking = Object.entries(agg)
+              .map(([name, slots]) => ({ name, slots }))
+              .sort((a, b) => b.slots - a.slots)
+              .slice(0, 3);
+            return { id: l.id, ranking };
+          })
+          .catch(() => ({ id: l.id, ranking: [] }))
+      )
+    ).then((results) => {
+      const map: Record<string, { name: string; slots: number }[]> = {};
+      results.forEach(({ id, ranking }) => { map[id] = ranking; });
+      setOwnerRankings(map);
+    });
+  }, [listings]);
 
   const crops = ["すべて", ...Array.from(new Set(listings.map((l) => l.crop)))];
 
@@ -153,6 +179,9 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
             const pct = Math.round((used / listing.total_slots) * 100);
             const months = monthsUntil(listing.harvest_date);
 
+            const ranking = ownerRankings[listing.id] ?? [];
+            const medals = ['🥇', '🥈', '🥉'];
+
             return (
               <Link key={listing.id} href={`/listings/${listing.id}`}>
                 <div className="rounded-2xl overflow-hidden hover:shadow-md transition cursor-pointer bg-[#f2f7f0] border border-black">
@@ -200,6 +229,23 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
                         残り {listing.available_slots}/{listing.total_slots} 枠
                       </p>
                       {months != null && <HarvestBar months={months} />}
+                      {ranking.length > 0 && (
+                        <div className="flex flex-col gap-1 mt-3">
+                          {ranking.map((r, i) => {
+                            const sizeClass = i === 0 ? 'text-xl' : i === 1 ? 'text-lg' : 'text-base';
+                            return (
+                              <div
+                                key={i}
+                                className="font-bold flex justify-between gap-4"
+                                style={{ color: '#8a6a00' }}
+                              >
+                                <span className={sizeClass}>{medals[i]} {r.name}</span>
+                                <span className="text-base">{r.slots}枠</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
