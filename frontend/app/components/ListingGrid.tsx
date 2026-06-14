@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Listing } from "../page";
 
+const HARVEST_BAR_MAX_MONTHS = 12;
+
 function monthsUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
   const now = new Date();
@@ -13,6 +15,33 @@ function monthsUntil(dateStr: string | null): number | null {
     (harvest.getFullYear() - now.getFullYear()) * 12 +
     (harvest.getMonth() - now.getMonth());
   return diff > 0 ? diff : null;
+}
+
+function harvestBarColor(months: number): string {
+  if (months <= 2) return "#e07a30";
+  if (months <= 5) return "#c9a830";
+  return "#3a7a30";
+}
+
+function HarvestBar({ months }: { months: number }) {
+  const pct = Math.min(months / HARVEST_BAR_MAX_MONTHS, 1) * 100;
+  const color = harvestBarColor(months);
+  return (
+    <div className="mt-2">
+      <div className="flex justify-between items-center mb-1">
+        <span className="text-xs text-gray-400">収穫まで</span>
+        <span className="text-xs font-medium" style={{ color }}>
+          約{months}ヶ月
+        </span>
+      </div>
+      <div className="h-1.5 bg-[#e0e8dc] rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${pct}%`, backgroundColor: color }}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function ListingGrid({ listings }: { listings: Listing[] }) {
@@ -169,8 +198,8 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
                       </div>
                       <p className="text-sm text-black mt-1.5">
                         残り {listing.available_slots}/{listing.total_slots} 枠
-                        {months != null && `・収穫まで約${months}ヶ月`}
                       </p>
+                      {months != null && <HarvestBar months={months} />}
                     </div>
                   </div>
                 </div>
