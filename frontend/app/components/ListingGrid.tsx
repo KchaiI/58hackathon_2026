@@ -53,7 +53,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
               支援者枠マーケット
             </h1>
           </div>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-black text-base mt-1">
             日本の農家・林業家の支援者になろう
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
           placeholder="作物名・産地・農園名で検索"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm text-black outline-none focus:border-[#3a7a30] transition"
+          className="w-full pl-9 pr-4 py-2.5 border border-black rounded-xl text-sm text-black outline-none focus:border-black transition"
         />
       </div>
 
@@ -87,7 +87,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
             <button
               key={crop}
               onClick={() => setActiveCategory(crop)}
-              className={`px-4 py-1.5 rounded-full text-sm border transition ${
+              className={`px-5 py-2 rounded-full text-base border transition ${
                 activeCategory === crop
                   ? "border-gray-800 text-gray-900 font-medium bg-white"
                   : "border-gray-200 text-gray-500 bg-white hover:border-gray-400"
@@ -155,7 +155,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
                     <h2 className="text-base font-bold text-gray-900 mt-2">
                       {listing.title}
                     </h2>
-                    <p className="text-sm text-gray-400 mt-0.5">
+                    <p className="text-base text-gray-400 mt-0.5">
                       {listing.producers?.location}
                     </p>
 
@@ -167,7 +167,7 @@ export default function ListingGrid({ listings }: { listings: Listing[] }) {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <p className="text-xs text-gray-400 mt-1.5">
+                      <p className="text-sm text-black mt-1.5">
                         残り {listing.available_slots}/{listing.total_slots} 枠
                         {months != null && `・収穫まで約${months}ヶ月`}
                       </p>
