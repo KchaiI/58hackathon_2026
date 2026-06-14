@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 const ownerLinks = [
@@ -62,8 +63,14 @@ export default function Sidebar() {
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
+        {/* Logo */}
+        <div className="flex items-center gap-2 px-4 mt-4 mb-4">
+          <Image src="/agriowner_icon_1024.png" alt="AgriOwner" width={36} height={36} className="rounded-lg" />
+          <span className="font-bold text-gray-900 text-base">AgriOwner</span>
+        </div>
+
         {/* Role toggle */}
-        <div className="mx-4 mt-4 mb-6 flex rounded-xl overflow-hidden border border-[#e0dbd2]">
+        <div className="mx-4 mb-6 flex rounded-xl overflow-hidden border border-[#e0dbd2]">
           {(['owner', 'producer'] as const).map(r => (
             <button
               key={r}
