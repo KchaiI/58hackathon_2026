@@ -91,6 +91,7 @@ export default function MyPage() {
   const [ownerships, setOwnerships] = useState<Ownership[]>([]);
   const [loading, setLoading] = useState(false);
   const [latestImages, setLatestImages] = useState<Record<string, string>>({});
+  const [newCounts, setNewCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (ownerships.length === 0) return;
@@ -99,13 +100,24 @@ export default function MyPage() {
       listingIds.map((id) =>
         fetch(`/api/growth_records?listing_id=${id}`)
           .then((r) => r.json())
-          .then((records) => ({ id, url: records[0]?.image_url ?? null }))
-          .catch(() => ({ id, url: null }))
+          .then((records) => {
+            const lastSeen = localStorage.getItem(`last_seen_${id}`) ?? '0';
+            const count = Array.isArray(records) ? records.filter(
+              (r: { created_at: string }) => new Date(r.created_at).getTime() > Number(lastSeen)
+            ).length : 0;
+            return { id, url: records[0]?.image_url ?? null, count };
+          })
+          .catch(() => ({ id, url: null, count: 0 }))
       )
     ).then((results) => {
-      const map: Record<string, string> = {};
-      results.forEach(({ id, url }) => { if (url) map[id] = url; });
-      setLatestImages(map);
+      const imgMap: Record<string, string> = {};
+      const countMap: Record<string, number> = {};
+      results.forEach(({ id, url, count }) => {
+        if (url) imgMap[id] = url;
+        if (count > 0) countMap[id] = count;
+      });
+      setLatestImages(imgMap);
+      setNewCounts(countMap);
     });
   }, [ownerships]);
 
@@ -117,6 +129,7 @@ export default function MyPage() {
     setOwnerships(Array.isArray(data) ? data : []);
     sessionStorage.setItem('user_email', email);
     sessionStorage.setItem('user_name', Array.isArray(data) && data[0]?.owner_name ? data[0].owner_name : email);
+    localStorage.setItem('user_email', email);
     setSubmitted(true);
     setLoading(false);
   }
@@ -232,9 +245,16 @@ export default function MyPage() {
 
                 {/* Card body */}
                 <div className="p-4">
-                  <p className="font-semibold text-gray-900 text-base leading-snug">
-                    {listing.crop}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-gray-900 text-base leading-snug">
+                      {listing.crop}
+                    </p>
+                    {newCounts[listing.id] > 0 && (
+                      <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                        {newCounts[listing.id] > 9 ? '9+' : newCounts[listing.id]}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-400 mt-0.5">
                     {listing.producers?.name}・{listing.producers?.location}
                   </p>
