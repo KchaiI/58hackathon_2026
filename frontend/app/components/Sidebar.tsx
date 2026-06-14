@@ -31,24 +31,7 @@ const theme = {
 export default function Sidebar() {
   const [open, setOpen] = useState(false)
   const [role, setRole] = useState<'owner' | 'producer'>('owner')
-  const [notifCount, setNotifCount] = useState(3)
   const pathname = usePathname()
-
-  useEffect(() => {
-    const email = sessionStorage.getItem('user_email') ?? localStorage.getItem('user_email') ?? 'demo@example.com'
-    const since = localStorage.getItem('last_supporter_visit') ?? '0'
-    fetch(`/api/notifications?email=${encodeURIComponent(email)}&since=${since}`)
-      .then((r) => r.json())
-      .then((d) => { setNotifCount(d.count ?? 0) })
-      .catch((e) => { console.error('notification fetch error', e) })
-  }, [pathname])
-
-  useEffect(() => {
-    if (pathname === '/supporter') {
-      localStorage.setItem('last_supporter_visit', String(Date.now()))
-      setNotifCount(0)
-    }
-  }, [pathname])
 
   const links = role === 'owner' ? ownerLinks : producerLinks
   const t = theme[role]
@@ -116,11 +99,6 @@ export default function Sidebar() {
             >
               <span>{icon}</span>
               <span className="flex-1">{label}</span>
-              {href === '/supporter' && notifCount > 0 && (
-                <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {notifCount > 9 ? '9+' : notifCount}
-                </span>
-              )}
             </Link>
           ))}
         </nav>
